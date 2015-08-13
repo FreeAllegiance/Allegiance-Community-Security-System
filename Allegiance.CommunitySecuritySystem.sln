@@ -61,6 +61,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Allegiance.CommunitySecuritySystem.testsettings = Allegiance.CommunitySecuritySystem.testsettings
 		Allegiance.CommunitySecuritySystem.vsmdi = Allegiance.CommunitySecuritySystem.vsmdi
+		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tasks", "Tasks", "{6F16C3BE-8833-48B5-8771-71EB533013DE}"
