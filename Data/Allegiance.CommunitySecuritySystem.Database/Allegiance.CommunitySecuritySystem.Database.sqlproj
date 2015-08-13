@@ -1,0 +1,516 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+    <PostConversionRemoveFromScc>
+    </PostConversionRemoveFromScc>
+    <PostConversionAddToScc>
+    </PostConversionAddToScc>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <PostUpgradeAddToSCC>;C:\Source\Allegiance\CSS\Data\Allegiance.CommunitySecuritySystem.Database\Allegiance.CommunitySecuritySystem.Database.dbproj;C:\Source\Allegiance\CSS\Data\Allegiance.CommunitySecuritySystem.Database\Connections.txt;C:\Source\Allegiance\CSS\Data\Allegiance.CommunitySecuritySystem.Database\Scripts\Post-Deployment\Script.PostDeployment.sql;C:\Source\Allegiance\CSS\Data\Allegiance.CommunitySecuritySystem.Database\Scripts\Pre-Deployment\Script.PreDeployment.sql</PostUpgradeAddToSCC>
+    <PreviousProjectVersion>4.1</PreviousProjectVersion>
+    <UpgradedFromDBP>True</UpgradedFromDBP>
+    <Name>Allegiance.CommunitySecuritySystem.Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql100DatabaseSchemaProvider</DSP>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <ShowWizard>False</ShowWizard>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <IncludeSchemaNameInFileName>False</IncludeSchemaNameInFileName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <LoadSqlClrTypes>True</LoadSqlClrTypes>
+    <ValidateCasingOnIdentifiers>False</ValidateCasingOnIdentifiers>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7efee462-731c-421f-9d45-74683d5021ac}</ProjectGuid>
+    <GenerateDatabaseFile>False</GenerateDatabaseFile>
+    <GenerateCreateScript>False</GenerateCreateScript>
+    <DefaultSchema>dbo</DefaultSchema>
+    <SqlServerVerification>False</SqlServerVerification>
+    <TargetLanguage>CS</TargetLanguage>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <AnsiNullDefault>True</AnsiNullDefault>
+    <AnsiNulls>True</AnsiNulls>
+    <AnsiPadding>True</AnsiPadding>
+    <AnsiWarnings>True</AnsiWarnings>
+    <ArithAbort>True</ArithAbort>
+    <ConcatNullYieldsNull>True</ConcatNullYieldsNull>
+    <QuotedIdentifier>True</QuotedIdentifier>
+    <NumericRoundAbort>False</NumericRoundAbort>
+    <RecursiveTriggersEnabled>False</RecursiveTriggersEnabled>
+    <DatabaseState>ONLINE</DatabaseState>
+    <UpdateOptions>READ_WRITE</UpdateOptions>
+    <CloseCursorOnCommitEnabled>False</CloseCursorOnCommitEnabled>
+    <DefaultCursor>LOCAL</DefaultCursor>
+    <AutoClose>False</AutoClose>
+    <AutoCreateStatistics>True</AutoCreateStatistics>
+    <AutoShrink>False</AutoShrink>
+    <AutoUpdateStatistics>True</AutoUpdateStatistics>
+    <TornPageDetection>False</TornPageDetection>
+    <DatabaseAccess>MULTI_USER</DatabaseAccess>
+    <Recovery>FULL</Recovery>
+    <EnableFullTextSearch>True</EnableFullTextSearch>
+    <DatabaseChaining>False</DatabaseChaining>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <Trustworthy>False</Trustworthy>
+    <AutoUpdateStatisticsAsynchronously>False</AutoUpdateStatisticsAsynchronously>
+    <PageVerify>NONE</PageVerify>
+    <ServiceBrokerOption>DisableBroker</ServiceBrokerOption>
+    <DateCorrelationOptimizationOn>False</DateCorrelationOptimizationOn>
+    <Parameterization>SIMPLE</Parameterization>
+    <AllowSnapshotIsolation>False</AllowSnapshotIsolation>
+    <ReadCommittedSnapshot>False</ReadCommittedSnapshot>
+    <VardecimalStorageFormatOn>True</VardecimalStorageFormatOn>
+    <SupplementalLoggingOn>False</SupplementalLoggingOn>
+    <DefaultFileStreamFilegroup />
+    <IsChangeTrackingOn>False</IsChangeTrackingOn>
+    <IsChangeTrackingAutoCleanupOn>True</IsChangeTrackingAutoCleanupOn>
+    <ChangeTrackingRetentionPeriod>2</ChangeTrackingRetentionPeriod>
+    <ChangeTrackingRetentionUnit>Days</ChangeTrackingRetentionUnit>
+    <IsEncryptionOn>False</IsEncryptionOn>
+    <IsBrokerPriorityHonored>False</IsBrokerPriorityHonored>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>.\sql\release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TargetDatabase>
+    </TargetDatabase>
+    <TreatTSqlWarningsAsErrors>False</TreatTSqlWarningsAsErrors>
+    <SuppressTSqlWarnings />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>.\sql\debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TargetDatabase>
+    </TargetDatabase>
+    <TreatTSqlWarningsAsErrors>False</TreatTSqlWarningsAsErrors>
+    <SuppressTSqlWarnings />
+  </PropertyGroup>
+  <!--Import the settings-->
+  <Import Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="'$(SQLDBExtensionsRefPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="'$(SQLDBExtensionsRefPath)' == ''" />
+  <ItemGroup>
+    <Folder Include="Scripts" />
+    <Folder Include="Scripts\Pre-Deployment" />
+    <Folder Include="Scripts\Post-Deployment" />
+    <Folder Include="Data Generation Plans" />
+    <Folder Include="Schema Comparisons" />
+    <Folder Include="Change Scripts\Legacy\0.0.1" />
+    <Folder Include="Change Scripts\Legacy\0.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Schema Objects" />
+    <Folder Include="Schema Objects\Schemas" />
+    <Folder Include="Schema Objects\Schemas\dbo" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Defaults" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Functions" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Rules" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Types" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Types\User Defined Data Types" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Types\User Defined Types CLR" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Types\User Defined Table Types" />
+    <Folder Include="Schema Objects\Schemas\dbo\Programmability\Types\XML Schema Collections" />
+    <Folder Include="Schema Objects\Schemas\dbo\Service Broker" />
+    <Folder Include="Schema Objects\Schemas\dbo\Service Broker\Queues" />
+    <Folder Include="Schema Objects\Schemas\dbo\Synonyms" />
+    <Folder Include="Schema Objects\Schemas\dbo\Tables" />
+    <Folder Include="Schema Objects\Schemas\dbo\Tables\Constraints" />
+    <Folder Include="Schema Objects\Schemas\dbo\Tables\Indexes" />
+    <Folder Include="Schema Objects\Schemas\dbo\Tables\Keys" />
+    <Folder Include="Schema Objects\Schemas\dbo\Tables\Triggers" />
+    <Folder Include="Schema Objects\Schemas\dbo\Tables\Statistics" />
+    <Folder Include="Schema Objects\Schemas\dbo\Views" />
+    <Folder Include="Schema Objects\Schemas\dbo\Views\Indexes" />
+    <Folder Include="Schema Objects\Schemas\dbo\Views\Triggers" />
+    <Folder Include="Schema Objects\Schemas\dbo\Views\Statistics" />
+    <Folder Include="Schema Objects\Database Level Objects" />
+    <Folder Include="Schema Objects\Database Level Objects\Assemblies" />
+    <Folder Include="Schema Objects\Database Level Objects\Database Triggers" />
+    <Folder Include="Schema Objects\Database Level Objects\Security" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Schemas" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Users" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Certificates" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Asymmetric Keys" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Master Keys" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Signatures" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Symmetric Keys" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Database Encryption Keys" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Database Audit Specification" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Roles" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Roles\Application Roles" />
+    <Folder Include="Schema Objects\Database Level Objects\Security\Roles\Database Roles" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Broker Priorities" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Contracts" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Event Notifications" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Message Types" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Remote Service Binding" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Routes" />
+    <Folder Include="Schema Objects\Database Level Objects\Service Broker\Services" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage\Full Text Stoplists" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage\Filegroups" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage\Files" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage\Full Text Catalogs" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage\Partition Functions" />
+    <Folder Include="Schema Objects\Database Level Objects\Storage\Partition Schemes" />
+    <Folder Include="Change Scripts" />
+    <Folder Include="Change Scripts\Legacy" />
+    <Folder Include="Create Scripts" />
+    <Folder Include="Create Scripts\Legacy" />
+    <Folder Include="Queries" />
+    <Folder Include="Test Scripts" />
+    <Folder Include="Properties" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connections.txt" />
+    <None Include="Create Scripts\Legacy\0.0.1.0.sql" />
+    <None Include="Test Scripts\Autoupdate Test Data.sql" />
+    <None Include="Test Scripts\Messaging Test.sql" />
+    <None Include="Test Scripts\Poll Test Data.sql" />
+    <None Include="Create Scripts\CSSStats 0.0.3.0.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Create Scripts\Legacy\0.0.2.0.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.001.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.016.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.002.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.003.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.004.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.005.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.006.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.007.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.008.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.009.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.010.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.011.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.012.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.013.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.014.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.1\0.0.1.015.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.001.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.059.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.002.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.003.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.004.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.005.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.006.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.007.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.008.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.009.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.010.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.011.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.012.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.013.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.014.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.015.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.016.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.017.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.018.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.019.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.020.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.021.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.022.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.023.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.024.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.025.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.026.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.027.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.028.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.029.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.030.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.031.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.032.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.033.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.034.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.035.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.036.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.037.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.038.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.039.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.040.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.041.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.042.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.043.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.044.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.045.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.046.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.047.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.048.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.049.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.050.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.051.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.052.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.053.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.054.1.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.054.2.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.054.3.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.054.4.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.054.5.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.054.6.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.055.0.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.055.1.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.056.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.057.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.058.0.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\Legacy\0.0.2\0.0.2.058.1.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Create Scripts\CSS 0.0.3.0.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.002.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.003.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.004.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.005.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Create Scripts\MaintenancePlan.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.006.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.007.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.008.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.009.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.010.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.011.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.012.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.013.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.014.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.015.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.016.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.017.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.018.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+    <None Include="Change Scripts\0.0.3.019.sql">
+      <SubType>NotInBuild</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BuildContributorArgument Include="OutDir=$(OutDir)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Change Scripts\0.0.3.001.sql">
+      <SubType>Code</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug.publish.xml" />
+    <None Include="Release.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="Scripts\Pre-Deployment\Script.PreDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Post-Deployment\Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Permissions.sql" />
+  </ItemGroup>
+</Project>

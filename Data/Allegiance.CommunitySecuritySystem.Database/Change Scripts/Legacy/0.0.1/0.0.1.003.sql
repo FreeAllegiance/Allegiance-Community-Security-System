@@ -1,0 +1,1 @@
+﻿INSERT INTO TransformMethod ([Text]) Values('int len = rand.Next(189, 350); for (int i = rand.Next(15, 35); i < len; i += 2) sb.Append((char)rand.Next(48, 122));')

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Results>
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd5" filename="ClientService.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd4" filename="ClientService0.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd6" filename="ClientService1.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd1" filename="ClientService2.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd0" filename="ClientService3.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd3" filename="ClientService4.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="https://localhost/CSSServer/ClientService.svc?xsd=xsd2" filename="ClientService5.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="https://localhost/CSSServer/ClientService.svc?wsdl" filename="ClientService.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="https://localhost/CSSServer/ClientService.svc?disco" filename="ClientService.disco" />
+  </Results>
+</DiscoveryClientResultsFile>

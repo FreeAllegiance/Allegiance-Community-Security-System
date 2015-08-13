@@ -1,0 +1,43 @@
+﻿.AspNet-CreateUserWizard
+{
+	border: 1px solid black;
+	text-align: center;
+}
+
+.AspNet-CreateUserWizard-StepTitlePanel
+{
+	background-color: #F7F6F3;
+	padding: 3px 0px 3px 0px;
+	border-bottom: 1px solid black;
+	font-weight: bold;
+	text-align: center;
+}
+
+.AspNet-CreateUserWizard-SuccessTextPanel
+{
+	width1: 300px;
+	height: 100px;
+	margin-top: 20px;
+	padding-bottom: 10px;
+	
+}
+
+.AspNet-CreateUserWizard-CreateUserButtonPanel
+{
+	padding-bottom: 10px;
+}
+
+.AspNet-CreateUserWizard-UserInfoTable
+{
+	padding-top: 10px;
+}
+
+.AspNet-CreateUserWizard-ContinuePanel
+{
+	padding-bottom: 10px;
+}
+
+.AspNet-CreateUserWizard-UserInfoTable input
+{
+	width: 200px;
+}

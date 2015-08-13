@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+    <style type="text/css">
+		
+		.glowBack
+		{
+			color: Red;
+		}
+		
+		.glowFront
+		{
+			color: Blue;
+		}
+		
+		.glowtext
+		{
+			font-family: Verdana;
+		}
+    
+    </style>
+</head>
+<body>
+
+	<div>
+	<center>
+		<span>Test</span>
+	</center>
+	
+	</div>
+
+	<script src="../../Scripts/jquery-1.4.2.min.js" type="text/javascript" language="javascript"></script>
+
+
+	<h1 class="glowtext">Test</h1>
+	<br />
+	<div class="glowtext">Test2</div>
+	<br />
+	
+<center>
+	<span class="glowtext">Test3</span>
+</center>
+
+	<script type="text/javascript" language="javascript">
+
+		function addGlow(targetClass, foregroundClass, backgroundClass, glowSizePX)
+		{
+			var glowElements = $("." + targetClass);
+		
+			for (var i = 0; i < glowElements.length; i++)
+			{
+				var glowElement = glowElements[i];
+
+				var currentHtml = glowElement.innerHTML;
+
+				var divRelativeContainer = document.createElement("div");
+				divRelativeContainer.style.position = "relative";
+				divRelativeContainer.style.height = $(glowElement).height() + "px";
+				divRelativeContainer.style.width = $(glowElement).width() + "px";
+
+				while (glowElement.hasChildNodes() == true)
+					glowElement.removeChild(glowElement.firstChild);
+
+				//alert($(glowElement).width() + "px");
+
+				for (var x = 0; x <= glowSizePX * 2; x++)
+				{
+					for (var y = 0; y <= glowSizePX * 2; y++)
+					{
+						$(divRelativeContainer).append('<div class="' + backgroundClass + '" style="position: absolute; top: ' + y + 'px; left: ' + x + 'px;">' + currentHtml + '</div>');
+					}
+				}
+
+				$(divRelativeContainer).append('<div class="' + foregroundClass + '" style="position: absolute; top: ' + glowSizePX + 'px; left: ' + glowSizePX + 'px;  color: Blue;">' + currentHtml + '</div>');
+
+				$(glowElement).append(divRelativeContainer);
+			}
+		}
+
+		addGlow("glowtext", "glowFront", "glowBack", 1);
+		
+	</script>
+</body>
+</html>

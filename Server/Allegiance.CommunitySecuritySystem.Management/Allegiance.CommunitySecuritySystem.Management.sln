@@ -1,0 +1,80 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8E289931-E20C-4957-9B01-C18442EF4ECF}"
+	ProjectSection(SolutionItems) = preProject
+		Allegiance.CommunitySecuritySystem.Management.vsmdi = Allegiance.CommunitySecuritySystem.Management.vsmdi
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9C458447-4670-401D-A48A-E66598DAD084}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.Management", "Allegiance.CommunitySecuritySystem.Management.csproj", "{7F043CBA-5620-4C5C-BAB8-7935C3644A89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.Server", "..\Allegiance.CommunitySecuritySystem.Server\Allegiance.CommunitySecuritySystem.Server.csproj", "{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.Common", "..\Allegiance.CommunitySecuritySystem.Common\Allegiance.CommunitySecuritySystem.Common.csproj", "{FC9B4878-2453-45FA-9387-41726866139E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.BlackboxGenerator", "..\..\Tasks\Allegiance.CommunitySecuritySystem.BlackboxGenerator\Allegiance.CommunitySecuritySystem.BlackboxGenerator.csproj", "{299DA572-03B1-4A38-AF83-B1BC58744A17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.DataAccess", "..\..\Data\Allegiance.CommunitySecuritySystem.DataAccess\Allegiance.CommunitySecuritySystem.DataAccess.csproj", "{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}"
+EndProject
+Project("{C8D11400-126E-41CD-887F-60BD40844F9E}") = "Allegiance.CommunitySecuritySystem.Database", "..\..\Data\Allegiance.CommunitySecuritySystem.Database\Allegiance.CommunitySecuritySystem.Database.dbproj", "{67CBC824-A49E-4E9B-A947-360F3DFE65C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.ServerTest", "..\..\Tests\Allegiance.CommunitySecuritySystem.ServerTest\Allegiance.CommunitySecuritySystem.ServerTest.csproj", "{A187C9A8-5C56-4E86-8F32-F16D5B2A4588}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.AllegSkill", "..\Allegiance.CommunitySecuritySystem.AllegSkill\Allegiance.CommunitySecuritySystem.AllegSkill.csproj", "{69F2D660-D58D-4441-8241-F3B0CDDB78EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegiance.CommunitySecuritySystem.TagTestClient", "..\..\Client\Allegiance.CommunitySecuritySystem.TagTestClient\Allegiance.CommunitySecuritySystem.TagTestClient.csproj", "{CBF63346-9AF5-458D-B04A-7B06F2AA1556}"
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Allegiance.CommunitySecuritySystem.Management.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F043CBA-5620-4C5C-BAB8-7935C3644A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F043CBA-5620-4C5C-BAB8-7935C3644A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F043CBA-5620-4C5C-BAB8-7935C3644A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F043CBA-5620-4C5C-BAB8-7935C3644A89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC9B4878-2453-45FA-9387-41726866139E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC9B4878-2453-45FA-9387-41726866139E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC9B4878-2453-45FA-9387-41726866139E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC9B4878-2453-45FA-9387-41726866139E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{299DA572-03B1-4A38-AF83-B1BC58744A17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{299DA572-03B1-4A38-AF83-B1BC58744A17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{299DA572-03B1-4A38-AF83-B1BC58744A17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{299DA572-03B1-4A38-AF83-B1BC58744A17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A187C9A8-5C56-4E86-8F32-F16D5B2A4588}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A187C9A8-5C56-4E86-8F32-F16D5B2A4588}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A187C9A8-5C56-4E86-8F32-F16D5B2A4588}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A187C9A8-5C56-4E86-8F32-F16D5B2A4588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F2D660-D58D-4441-8241-F3B0CDDB78EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F2D660-D58D-4441-8241-F3B0CDDB78EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F2D660-D58D-4441-8241-F3B0CDDB78EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F2D660-D58D-4441-8241-F3B0CDDB78EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBF63346-9AF5-458D-B04A-7B06F2AA1556}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBF63346-9AF5-458D-B04A-7B06F2AA1556}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBF63346-9AF5-458D-B04A-7B06F2AA1556}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBF63346-9AF5-458D-B04A-7B06F2AA1556}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A187C9A8-5C56-4E86-8F32-F16D5B2A4588} = {9C458447-4670-401D-A48A-E66598DAD084}
+	EndGlobalSection
+EndGlobal

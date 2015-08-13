@@ -1,0 +1,72 @@
+﻿.AspNet-GridView
+{
+	color:#7C6F57;
+	font-size:0.8em;
+}
+
+.AspNet-GridView table
+{
+	border: 1px solid #C7C6C3;
+}
+
+.AspNet-GridView thead
+{
+	background-color: #F7F6F3;
+	cursor: pointer;
+}
+
+.AspNet-GridView td, .AspNet-GridView th
+{
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	border-left: 1px solid #C7C6C3;
+	border-right: 1px solid #C7C6C3;
+}
+
+.AspNet-GridView .centerCells td, .AspNet-GridView .centerHeaders th
+{
+	text-align: center;
+}
+
+.AspNet-GridView th
+{
+	border-bottom: 1px solid #C7C6C3;
+	text-align: left;
+	font-size: 10px;
+	background-color:#F7F6F3;
+}
+
+.AspNet-GridView-Alternate
+{
+	background-color: #FAFAFA;
+}
+
+
+.AspNet-GridView .markerImage
+{
+	text-align: center;
+}
+
+
+.sortable
+{
+	/* Just  a place holder so that VS doesn't complain about sortable class for sorttable.js. */
+}
+
+.sortable td, .sortable th
+{
+	padding: 3px 10px 3px 3px;
+}
+
+.sorttable_sorted span, .sorttable_sorted_reverse span
+{
+	position: absolute;
+}
+
+
+.sortable .hiddenColumn
+{
+	display: none;
+}

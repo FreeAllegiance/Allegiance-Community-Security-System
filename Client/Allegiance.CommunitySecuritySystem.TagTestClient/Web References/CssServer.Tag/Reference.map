@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Results>
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://allegiance.chi-town.com/CSSServer/Tag.svc?xsd=xsd1" filename="Tag.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://allegiance.chi-town.com/CSSServer/Tag.svc?xsd=xsd0" filename="Tag0.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.DiscoveryDocumentReference" url="http://allegiance.chi-town.com/CSSServer/Tag.svc?disco" filename="Tag.disco" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://allegiance.chi-town.com/CSSServer/Tag.svc?wsdl" filename="Tag.wsdl" />
+  </Results>
+</DiscoveryClientResultsFile>

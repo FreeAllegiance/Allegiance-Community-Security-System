@@ -1,0 +1,82 @@
+NOTE: Please extend/adapt this guide for everything that didn't work for you!
+
+Requirements:
+    • Visual Studio 2008+ (Visual Basic might be required in future revisions, so you might want to select it during installation)
+    • .NET Framework 3.5 SP1
+    • SQL Server 2008 (might work on 2005 and/or Express, but neither is being tested)
+    • IIS 5.x+
+
+0. Install Visual Studio and .NET Framework 3.5. Make sure you get all service packs and patches for both.
+
+1. Install SQL Server.
+   1a. During installation, set it to allow mixed authentication (Windows accounts and ones specificially created for SQL Server).
+   1b. Create a new database called 'CSS'.
+   1c. Create a user account 'css_server', password 'ga!Gmqpak8g'.
+   1d. Open the SQL Server Configuration Manager and under Network Configuration -> Protocols, enable TCP/IP and Named Pipes, then restart the service.
+   1e. Make sure you can log into the server with these credentials, e.g. by using the SQL Server Management Studio or the Visual Studio Server Explorer.
+
+2. Install IIS.
+   2a. Open the Control Panel -> Add or Remove Programs -> Add/Remove Windows Components and install the Internet Information Services (IIS), particularly the World Wide Web Service sub-component. (Note: you might require your Windows CD and/or the service pack files.) On Windows 7, the list of required components is quite different. Just install IIS, then try loading the solution until Visual Studio stops complaining about missing Windows components.
+   2b. Confirm that it is showing up in the Computer Management -> Services and Applications as Internet Information Service.
+   2c. Confirm that it has a Default Web Site sub-entry and this is running (the Start Item button is disabled). If that is not the case, try restarting it and hope for an error message or check the error log. One common problem is that the Default Web Site is configured for port 80 and port 80 is already in use by another HTTP server like Apache.
+   2d. At least on IIS 7.5 (Windows 7), you'll have to enable the .svc file extension. Open an elevated command prompt (right-click it in the start menu and select 'run as administrator') and navigate to C:\Windows\Microsoft.NET\Framework\v3.0\Windows Communication Foundation. There, execute "ServiceModelReg -i".
+
+3. Prepare the Database.
+   3a. Open the Server Explorer view in Visual Studio. You should already see a connection to the database there. Make sure it is working (if not, you probably made some mistake in step 1) by trying to access some data (the Tables list should still be empty).
+   3b. Switch back to the Solution Explorer and open the project Allegiance.CommunitySecuritySystem.Database.
+   3c. Run the highest versioned script you can find in the Create Scripts folder.
+   3d. Then run all scripts in the Change Scripts folder which are higher versioned than the used create script, in the correct order.
+
+4. Configure IIS for SSL (HTTPS).
+   4a. Locate the makecert.exe on your computer. You might find it in %PROGRAM_FILES%\Microsoft SDKs\Windows\v6.0A\bin. Open a console in that directory or add the directory to the console's PATH.
+   4b. Run the following command line:
+         makecert -r -pe -n "CN=localhost" -b 01/01/2008 -e 01/01/2050 -eku 1.3.6.1.5.5.7.3.1 -ss my -sr localMachine -sky exchange -sp "Microsoft RSA SChannel Cryptographic Provider" -sy 12 mycert.cer
+   4c. You can confirm this has been working by opening 'mmc' from the console, selecting File -> Add/Remove Snap-In from the menu, clicking on 'Add...', selecting the Certificates snap-in, selecting 'Computer account'. Then close all dialogs and you should see a tree of your installed certificates. Now confirm that you have a new certificate that is Issued To 'localhost' in Personal -> Certificates. If that is not the case, it might help to right-click on the file mycert.cer created in step 4b and selecting Install Certificate.
+
+	IIS 5.1 (Win XP):
+	   4d. Open the Computer Management again. Open the context menu of the Default Web Site and select Properties. On the tab Directory Security, click on 'Server Certificate...'. Follow the Wizard and tell it that you want to install a registered certificate. Select the certificate created in step 4b and complete the wizard.
+	   4e. Clicking on 'View Certificate...' should now show you the certificate, but mention that it is not trusted. That's okay for now, as the prototype client is configured to accept untrusted certificates coming from the server.
+	   4f. You might have to restart IIS now by right-clicking on Internet Information Service, selecting All Tasks -> Restart IIS and then requesting a restart from the combobox.
+	   4g. Confirm that it is running on IIS by accessing https://localhost/CSSServer. You should get a "Directory Listing Denied" page from IIS, but *not* an error message from your browser. Your browser should display it as an encrypted site. The browser might complain about the untrusted certificate, in which case you can add an exception for this certificate.
+
+	IIS 7.5 (Win 7):
+	   4d. Open the Computer Management again. Open the Default Web Site and select "Bindings..." on the right. Add a binding with type "https" and select "localhost" as the certificate.
+	   4e. Clicking on 'View Certificate...' should now show you the certificate, but mention that it is not trusted. That's okay for now, as the prototype client is configured to accept untrusted certificates coming from the server.
+	   4f. You might have to restart IIS now by clicking on "Restart" below "Manage Web Site" on the righthand side.
+	   4g. Confirm that it is running on IIS by accessing https://localhost/CSSServer. You should get a "Directory Listing Denied" page from IIS, but *not* an error message from your browser. Your browser should display it as an encrypted site. The browser might complain about the untrusted certificate, in which case you can add an exception for this certificate.
+
+5. Building the Main Projects.
+   5a. Open the solution in Visual Studio. It will not build without errors at this point.
+   5b. Build the project Allegiance.CommunitySecuritySystem.Server. This should also automatically deploy it. Confirm that CSSServer now appears as a virtual directory under the Default Web Site in Computer Management.
+   5c. Confirm that it is running on IIS by accessing http://localhost/CSSServer. You should get a "Directory Listing Denied" or "Forbidden" page from IIS (because directory listening is not enabled), but *not* an error message from your browser. You should also be able to get to this error page over HTTPS.
+   5d. Now try accessing http://localhost/CSSServer/ClientService.svc. You should see some template information about the service. That means it's running. You should also be able to get this over HTTPS.
+   5e. Open the project Allegiance.CommunitySecuritySystem.Client and look under Web References. You should see a reference called 'localhost'. Right-click it and select Update Web Reference. You should get warnings now, because the server is using a self-signed certificate. Accept them and the web reference should successfully update.
+   5f. Do the same in the project PrototypeClient.
+   5g. The client will still not compile at this point. From the repository, under Documents/Templates/, take the file Allegiance.CommunitySecuritySystem.Client.config and copy it into the Client project as "app.config". Open it and replace the placeholder {ComputerName} with your computer name or just "localhost". This file should not be committed into the repository (but it is on svn:ignore anyway, so you can't easily).
+   5h. Now the server should build deploy and the client should build, too. Right-click the solution and select Properties. Under 'Startup Project', select 'Multiple startup projects' and select the Action 'start' for the projects Client and Server.
+   5i. Run it.
+
+6. Configuring the AutoUpdate Service.
+   6a. Ensure the AutoUpdate virtual directory is created, if it isn't, go into the project properties and click "Create Virtual Directory" under the Web tab.
+   6b. Navigate to the AutoUpdate virtual directory.
+		For IIS 6(XP): Right click on virtual directory > properties > virtual directory tab > Configure button
+		  Configure a 'Wildcard application map' pointing to C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll.
+		  Ensure that "Verify that file exists" is unchecked.
+		
+		** TODO: Make this part of the web.config so that manual config on IIS is not necessary. (see <handlers> element under system.webServer)
+		For IIS 7(Vista/7): Click on Handler Mappings in main pane, click on "Add Managed Handler" in right pane,
+			under request path type: *, under Type, select Allegiance.CommunitySecuritySystem.AutoUpdate.AutoUpdateHandler, under Name type 'AutoUpdateHandler', click OK. If it complains, then it probably means the binding is configured correctly already in your web.config
+
+7. Building the Other Projects.
+   7a. [MISSING] how to really build Server (app.config needed?)
+   7b. [MISSING] how to build AutoUpdate
+   7c. [MISSING] how to build ServerTest
+   7d. [MISSING] how to build TaskHandler
+   
+8. Configure Development Environment Settings for Local Testing.
+	8a. Apply DevelopmentSettings.reg to your registry. This will set up the 1.1 branch of allegiance to point to 
+			your local copy of allegiance.exe. You will need to update the EXE Path registry setting to point to your
+			allegiance.exe directory. You will also need to update the ClientService registry key to point to your local
+			CSS ClientService webservice.
+   
+

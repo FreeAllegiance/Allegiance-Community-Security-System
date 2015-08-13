@@ -1,0 +1,101 @@
+﻿<%@ Master EnableViewState="true" Language="C#" AutoEventWireup="true" CodeBehind="Default.master.cs" Inherits="Allegiance.CommunitySecuritySystem.Management.UI.MasterPages.Default" %>
+
+<%@ Register src="../UserControls/TopNavigation.ascx" tagname="TopNavigation" tagprefix="uc1" %>
+
+<%@ Register src="../UserControls/Footer.ascx" tagname="Footer" tagprefix="uc2" %>
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body class="defaultMaster">
+
+    <form id="form1" runat="server">
+	 
+	<%-- Don't Remove This! - Use ScriptManageProxy on all content webforms to add scripts and services to the script manager. --%>
+	<asp:ScriptManager ID="ScriptManager1" runat="server" LoadScriptsBeforeUI="true">
+	</asp:ScriptManager>
+
+    <center>
+		<table class="mainForm" id="tableMainForm" runat="server">
+			<tr>
+				<td class="mainHeader">
+					<center>
+						<h1><%= PageHeader %></h1>
+					</center>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="mainNav">
+					<center>
+						<table>
+							<tr>
+								<td style="width1: 100%;">
+									 <uc1:TopNavigation ID="ucTopNavigation" runat="server" />	
+									<%--
+									<asp:LoginView ID="LoginView1" runat="server">
+										<LoggedInTemplate>
+											
+										</LoggedInTemplate>
+									</asp:LoginView>
+									--%>
+								</td>
+								<td class="currentUser" >
+									<asp:LoginView ID="LoginView2" runat="server">
+										<LoggedInTemplate>
+											Logged in as: <asp:LoginName ID="LoginName1" runat="server" />
+										</LoggedInTemplate>
+									</asp:LoginView>
+								</td>
+								<td>
+									<ul class="sf-menu sf-js-enabled sf-shadow" id="loginViewMenuItem" style="float: right;">
+										<li>
+										<asp:LoginView ID="LoginView3" runat="server">
+											<LoggedInTemplate>
+												<a href="<%= Page.ResolveUrl("~/Logout.aspx") %>">Logout</a>
+											</LoggedInTemplate>
+											<AnonymousTemplate>
+												<a href="<%= Page.ResolveUrl("~/Login.aspx") %>">Login</a>
+											</AnonymousTemplate>
+										</asp:LoginView>
+											
+										</li>
+									</ul>
+								</td>
+							</tr>
+						</table>
+					</center>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<%-- smpBreadcrump is not used on every page. The base page of the sub application will control the visibility. --%>
+					<div style="height: 5px;"></div>
+					<asp:SiteMapPath ID="smpBreadcrumb" runat="server"  Visible="false" CssClass="breadcrumb">
+					</asp:SiteMapPath>
+				</td>
+			</tr>
+			<tr valign="top">
+				<td class="mainContent">
+					<asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+					</asp:ContentPlaceHolder>
+				</td>
+			</tr>
+			<tr>
+				<td class="mainFooter">
+					
+					<uc2:Footer ID="Footer1" runat="server" />
+					
+				</td>
+			</tr>
+		</table>
+		</center>
+    </form>
+</body>
+</html>

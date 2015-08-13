@@ -1,0 +1,8 @@
+﻿.sortable tbody
+{
+	height: 50em;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+

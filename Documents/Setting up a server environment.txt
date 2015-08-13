@@ -1,0 +1,154 @@
+System Requirements:
+===========================================================
+* SQL Server 2005-2008
+* Microsoft .NET 3.5 (Sp1)
+* IIS 6, 7, 7.5
+
+Retrieve deployment package containing:
+	AutoUpdate.zip
+	CSSLobby.zip
+	CSS_Database.bak
+	CSS_Server.zip
+	ResourcesSourceFiles.zip
+	Allegiance.zip
+	Lobby.zip
+
+
+
+Set up Database:
+===========================================================
+- In management studio create a new database entitled "CSS"
+- Retrieve backup of database (.bak)
+- Right click on database, goto Tasks > Restore > Database...
+- Under "Source for restore" check "From Device:", then choose the the .bak file.
+- Click 'OK' until you are back to the "Restore Database - CSS" window.
+- Ensure that 'Restore' is checked in the 'Select the backup sets to restore' pane.
+- Switch to the Options tab, check the 'Overwrite the existing database' box and click 'OK'.
+- Expand the now restored CSS database in the Object Explorer, expand Security->Users
+- Delete the "css_server" user.
+- Expand the database /servers/ security node in the object explorer (near the bottom)
+- Right click on 'Logins' and click "New Login". Type in username: css_Server, check "SQL Server Authentication"
+- Enter your choice of password.
+- Uncheck "Enforce password policy"
+- Goto the "User Mappings" tab and check "CSS" under the "Users mapped to this login"
+- In "Database role membership for: "CSS" verify that the user has the ability to read/write and click OK.
+- Go to the very top parent node (your database server) in the object explorer, right click, and go to properties.
+- Switch to the "Security" tab, and make sure that "Server Authentication" 
+  is set to "SQL Server and Windows Authentication mode". Click OK.
+
+
+
+Set up SSL Certificate:
+===========================================================
+- Follow instructions from Certificate provider to set this up.
+
+
+
+Set up CSS Server:
+===========================================================
+- Save contents of 'CSS_Server.zip' to folder of your choice.
+- Open Internet Information Services (IIS) Manager.
+- Expand Web Sites and right click on website of your choice
+
+
+IIS 6
+- Click New -> Virtual Directory... use Alias: "CSSServer, Path: Directory you chose.
+- Ensure 'Run scripts (such as ASP)' is checked. Continue until 'Finish'.
+- Open the virtual directory properties, select "Configuration", and 
+  configure a 'Wildcard application map' pointing to 
+  C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll.
+  Ensure that "Verify that file exists" is unchecked.
+- Attempt to browse to your new virtual directory by right clicking on 'ClientService.svc' in
+  the right pane and clicking 'Browse'.	
+
+IIS 7
+- No directions yet.  
+
+General
+- If you do not see "ClientService Service" highlighted in blue at the top:
+  Open an elevated command prompt (right-click it in the start menu and select 'run as administrator') 
+  and navigate to C:\Windows\Microsoft.NET\Framework\v3.0\Windows Communication Foundation. There, 
+  execute "ServiceModelReg -i".
+- Browse to the directory where you placed CSS server in windows explorer.
+- Open the 'web.config' file within, and modify the 'serviceBaseAddress' 
+  value with the base /public/ address of the CSS Server (ex https://allegiance.chi-town.com/CSSServer/) 
+- Configure the 'autoupdateBaseAddress' to the URL you wish to locate the autoupdate service (ex http://autoupdate.wivuu.com/)
+- Configure the OutputRoot to the directory you wish blackbox generated output dlls to be saved.
+- Expand 'ResourcesSourceFiles.zip' into a directory of your choice and 
+  configure the 'SourceRoot' key to point to this directory.
+- Either generate a new Launcher client or ask Orion for an updated Launcher
+  and KnownHash.txt (goes in SourceRoot) for the client now.
+
+
+
+Set up AutoUpdate Service:
+===========================================================
+Extract AutoUpdateService.zip to desired hosting folder
+
+IIS 6 (not recommended)
+- IIS 6 is a little more complicated, you must create a new Site (not virtual directory) and 
+  configure a 'Wildcard application map' pointing to C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll.
+  Ensure that "Verify that file exists" is unchecked.
+  
+IIS 7/7.5 (recommended - With integrated app pool)
+- In IIS create a new Virtual Directory underneath the CSSServer entitled "AutoUpdate".
+- You shouldn't have to do anything since the web.config is already configured.
+- Ensure HTTP Binding is set RequestPath: * (all verbs) on Allegiance.CommunitySecuritySystem.AutoUpdate.dll
+
+General
+- Perform AutoUpdateImport task (Details to come)
+- Configure web.config connection string appropriately
+- Open allegiance.cfg in the lobby root, under default lobby (0) in notepad
+	- Modify the PublicLobby url to point to the lobby path
+	- Modify the FilelistSite to point to the base domain of your autoupdate site
+	- Modify the FilelistDirectory to point to the rest of the path to your autoupdate site
+
+
+
+Set up Lobby Authentication Service:
+===========================================================
+Extract CSSLobby.zip to desired hosting folder
+
+IIS 6 (not recommended)
+- IIS 6 is a little more complicated, you must create a new Site (not virtual directory) and 
+  configure a 'Wildcard application map' pointing to C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\aspnet_isapi.dll.
+  Ensure that "Verify that file exists" is unchecked.
+  
+IIS 7/7.5 (recommended - With integrated app pool)
+- In IIS create a new Virtual Directory underneath the CSSServer entitled "LobbyAuthentication".
+- You shouldn't have to do anything since the web.config is already configured.
+- Ensure HTTP Binding is set RequestPath: * (all verbs) on Allegiance.CommunitySecuritySystem.Lobby.dll
+
+General
+- Configure web.config connection string appropriately
+- Start the MS Allegiance Lobby service (Command Prompt -> net start alllobby)
+- In SQL Management studio, open the Lobby table, and modify the 
+  Production Host url point to the fully-qualified http location
+  your autoupdate folder for the lobby.
+  
+Set up Blackbox Generator Scheduled Task:
+===========================================================
+(Details to come)
+
+
+
+Set up Cleanup Scheduled Task:
+===========================================================
+(Details to come)
+
+
+
+Set up Lobby:
+===========================================================
+- Extract Lobbby.zip to desired destination.
+- Open regedit.
+	64-bit: Browse to HKLM\Software\Wow6432Node\Microsoft\Microsoft Games\Allegiance\1.1\AllLobby
+	32-bit: Browse to HKLM\Software\Microsoft\Microsoft Games\Allegiance\1.1\AllLobby
+	
+	- Create AllLobby key if it does not already exist.
+	- Create a new DWORD Value entitled "AUTH_ON", give it a value of 1.
+	- Create a new STRING value entitled "AUTH_ADDRESS", give the base url of the lobby authentication service.
+	
+- Open command prompt and browsed to lobby's folder location and regsvr32 AGC.dll included in package.
+- From command prompt call AllLobby.exe -Service, to register lobby as windows service.
+	(AllLobby.exe -UnregServer uninstalls the service)

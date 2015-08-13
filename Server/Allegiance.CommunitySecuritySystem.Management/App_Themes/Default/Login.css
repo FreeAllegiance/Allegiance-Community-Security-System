@@ -1,0 +1,64 @@
+﻿
+.AspNet-Login
+{
+	width: 330px;
+	border: 1px solid black;
+	padding: 0px 0px 10px 0px;
+}
+
+.AspNet-Login-TitlePanel
+{
+	background-color: #F7F6F3;
+	padding: 3px 0px 3px 0px;
+	border-bottom: 1px solid black;
+	font-weight: bold;
+}
+
+.AspNet-Login-UserPanel 
+{
+	text-align: right;
+	padding: 15px 20px 5px 0px;
+}
+
+.AspNet-Login-UserPanel input
+{
+	width: 200px;
+}
+
+.AspNet-Login-PasswordPanel 
+{
+	text-align: right;
+	padding: 5px 20px 5px 0px;
+}
+
+.AspNet-Login-PasswordPanel input
+{
+	width: 200px;
+}
+
+.AspNet-Login-RememberMePanel
+{
+	padding: 5px 0px 5px 0px;
+}
+
+.AspNet-Login-SubmitPanel
+{
+	padding: 5px 0px 5px 0px;
+}
+
+.AspNet-Login-SubmitPanel input
+{
+	width: 100px;
+}
+
+.AspNet-Login-CreateUserPanel
+{
+	padding-left: 10px;
+	float: left;
+}
+
+.AspNet-Login-PasswordRecoveryPanel
+{
+	clear: right;
+}
+

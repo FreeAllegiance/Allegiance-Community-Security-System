@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Factory="Allegiance.CommunitySecuritySystem.Server.Providers.HostFactory" Service="Allegiance.CommunitySecuritySystem.Server.Administration" CodeBehind="Administration.svc.cs" %>

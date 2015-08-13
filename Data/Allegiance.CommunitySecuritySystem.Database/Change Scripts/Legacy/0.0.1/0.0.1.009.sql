@@ -1,0 +1,135 @@
+﻿ /* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.Alias
+	DROP CONSTRAINT FK_Alias_Login
+GO
+ALTER TABLE dbo.Login SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.Alias
+	DROP CONSTRAINT DF_Alias_IsDefault
+GO
+ALTER TABLE dbo.Alias
+	DROP CONSTRAINT DF_Alias_DateCreated
+GO
+CREATE TABLE dbo.Tmp_Alias
+	(
+	Id int NOT NULL IDENTITY (1, 1),
+	LoginId int NOT NULL,
+	Callsign nvarchar(20) NOT NULL,
+	IsDefault bit NOT NULL,
+	IsActive bit NOT NULL,
+	DateCreated datetime NOT NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_Alias SET (LOCK_ESCALATION = TABLE)
+GO
+ALTER TABLE dbo.Tmp_Alias ADD CONSTRAINT
+	DF_Alias_IsDefault DEFAULT ((0)) FOR IsDefault
+GO
+ALTER TABLE dbo.Tmp_Alias ADD CONSTRAINT
+	DF_Alias_IsActive DEFAULT 1 FOR IsActive
+GO
+ALTER TABLE dbo.Tmp_Alias ADD CONSTRAINT
+	DF_Alias_DateCreated DEFAULT (getdate()) FOR DateCreated
+GO
+SET IDENTITY_INSERT dbo.Tmp_Alias ON
+GO
+IF EXISTS(SELECT * FROM dbo.Alias)
+	 EXEC('INSERT INTO dbo.Tmp_Alias (Id, LoginId, Callsign, IsDefault, DateCreated)
+		SELECT Id, LoginId, Callsign, IsDefault, DateCreated FROM dbo.Alias WITH (HOLDLOCK TABLOCKX)')
+GO
+SET IDENTITY_INSERT dbo.Tmp_Alias OFF
+GO
+ALTER TABLE dbo.GroupMessage_Alias
+	DROP CONSTRAINT FK_GroupMessage_Alias_Alias
+GO
+ALTER TABLE dbo.Group_Alias_GroupRole
+	DROP CONSTRAINT FK_Group_Alias_GroupRole_Alias
+GO
+ALTER TABLE dbo.GroupRequest
+	DROP CONSTRAINT FK_GroupRequest_Alias
+GO
+DROP TABLE dbo.Alias
+GO
+EXECUTE sp_rename N'dbo.Tmp_Alias', N'Alias', 'OBJECT' 
+GO
+ALTER TABLE dbo.Alias ADD CONSTRAINT
+	PK_Alias PRIMARY KEY CLUSTERED 
+	(
+	Id
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+ALTER TABLE dbo.Alias ADD CONSTRAINT
+	FK_Alias_Login FOREIGN KEY
+	(
+	LoginId
+	) REFERENCES dbo.Login
+	(
+	Id
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.GroupRequest ADD CONSTRAINT
+	FK_GroupRequest_Alias FOREIGN KEY
+	(
+	AliasId
+	) REFERENCES dbo.Alias
+	(
+	Id
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+ALTER TABLE dbo.GroupRequest SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.Group_Alias_GroupRole ADD CONSTRAINT
+	FK_Group_Alias_GroupRole_Alias FOREIGN KEY
+	(
+	AliasId
+	) REFERENCES dbo.Alias
+	(
+	Id
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+ALTER TABLE dbo.Group_Alias_GroupRole SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.GroupMessage_Alias ADD CONSTRAINT
+	FK_GroupMessage_Alias_Alias FOREIGN KEY
+	(
+	AliasId
+	) REFERENCES dbo.Alias
+	(
+	Id
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+ALTER TABLE dbo.GroupMessage_Alias SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT

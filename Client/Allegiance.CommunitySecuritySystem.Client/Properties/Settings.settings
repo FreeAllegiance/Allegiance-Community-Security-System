@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Allegiance.CommunitySecuritySystem.Client.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ManagementWebRoot" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://localhost/CSS</Value>
+    </Setting>
+    <Setting Name="Launcher_ClientService_ClientService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://localhost/CSSServer/ClientService.svc</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

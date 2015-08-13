@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Allegiance.CommunitySecuritySystem.DataAccess</RootNamespace>
+    <AssemblyName>Allegiance.CommunitySecuritySystem.DataAccess</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>http://localhost/Allegiance.CommunitySecuritySystem.DataAccess/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CookComputing.XmlRpcV2, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Includes\CookComputing.XmlRpcV2.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ASGS\Encryption.cs" />
+    <Compile Include="ASGS\Services.cs" />
+    <Compile Include="CSSDataLayer.cs">
+      <DependentUpon>CSSDataLayer.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="CSSDataLayer.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CSSDataLayer.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="CSSStatsDataLayer.cs">
+      <DependentUpon>CSSStatsDataLayer.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="CSSStatsDataLayer.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CSSStatsDataLayer.dbml</DependentUpon>
+    </Compile>
+    <Compile Include="Enumerations\BanClass.cs" />
+    <Compile Include="Enumerations\CheckAliasResult.cs" />
+    <Compile Include="Enumerations\LinkedItemType.cs" />
+    <Compile Include="Enumerations\LogType.cs" />
+    <Compile Include="Enumerations\SessionStatusEnum.cs" />
+    <Compile Include="IPConvergeProvider\Connect.cs" />
+    <Compile Include="IPConvergeProvider\IIPConvergeServer.cs" />
+    <Compile Include="MembershipProviders\CssMembershipProvider.cs" />
+    <Compile Include="MembershipProviders\CssRoleProvider.cs" />
+    <Compile Include="MembershipProviders\MembershipUserUtility.cs" />
+    <Compile Include="Model\ActiveKey.cs" />
+    <Compile Include="Model\Alias.cs" />
+    <Compile Include="Model\Ban.cs" />
+    <Compile Include="Model\Captcha.cs" />
+    <Compile Include="Model\Error.cs" />
+    <Compile Include="Model\GameTeam.cs" />
+    <Compile Include="Model\Group.cs" />
+    <Compile Include="Model\IMessage.cs" />
+    <Compile Include="Model\IPConverge.cs" />
+    <Compile Include="Model\Login_UnlinkedLogin.cs" />
+    <Compile Include="Model\LogIP.cs" />
+    <Compile Include="Model\MachineRecordByIdentity.cs" />
+    <Compile Include="Model\StatsLeaderboard.cs" />
+    <Compile Include="Model\Lobby.cs" />
+    <Compile Include="Model\GroupMessage.cs" />
+    <Compile Include="Model\Identity.cs" />
+    <Compile Include="Model\Log.cs" />
+    <Compile Include="Model\Login.cs" />
+    <Compile Include="Model\MachineRecord.cs" />
+    <Compile Include="Model\MachineRecordExclusion.cs" />
+    <Compile Include="Model\PersonalMessage.cs" />
+    <Compile Include="Model\Poll.cs" />
+    <Compile Include="Model\PollOption.cs" />
+    <Compile Include="Model\Rank.cs" />
+    <Compile Include="Model\Role.cs" />
+    <Compile Include="Model\Session.cs" />
+    <Compile Include="Model\TransformMethod.cs" />
+    <Compile Include="Model\VirtualMachineMarker.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ASGS\Services.wsdl" />
+    <None Include="CSSDataLayer.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>CSSDataLayer.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CSSDataLayer.dbml.layout">
+      <DependentUpon>CSSDataLayer.dbml</DependentUpon>
+    </None>
+    <None Include="CSSStatsDataLayer.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>CSSStatsDataLayer.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Server\Allegiance.CommunitySecuritySystem.Common\Allegiance.CommunitySecuritySystem.Common.csproj">
+      <Project>{FC9B4878-2453-45FA-9387-41726866139E}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="CSSStatsDataLayer.dbml.layout">
+      <DependentUpon>CSSStatsDataLayer.dbml</DependentUpon>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Includes\CookComputing.XmlRpcV2.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

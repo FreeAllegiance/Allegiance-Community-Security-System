@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Allegiance.CommunitySecuritySystem.Management.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="AutoUpdateRootDirectory" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">c:\AutoUpdate</Value>
+    </Setting>
+    <Setting Name="AdminEmails" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">nick@chi-town.com</Value>
+    </Setting>
+    <Setting Name="KnownHashLocation" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Source\Allegiance\CSS\Tasks\Allegiance.CommunitySecuritySystem.BlackboxGenerator\Resources\KnownHash.txt</Value>
+    </Setting>
+    <Setting Name="UseDebugBlackBox" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

@@ -1,0 +1,36 @@
+﻿
+.scrollableTable thead tr
+{
+	 position: absolute;
+	 top: expression(this.offsetParent.scrollTop);
+	 left: 1px;
+	
+}
+
+.scrollableTable
+{
+	background-color: White;
+}
+
+.scrollableTableWrapper
+{
+    position: relative;
+    height: 500px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: solid #C7C6C3;
+    border-width: 1px 1px 1px 0px;
+    -background: #C7C6C3;
+}
+
+.scrollableTable1 tbody 
+{
+    height: auto;
+}
+
+.scrollableTable tbody tr:first-child td 
+{
+	padding-top1: expression(this.offsetParent.scrollTop);
+    padding-top: 35px;
+}
+

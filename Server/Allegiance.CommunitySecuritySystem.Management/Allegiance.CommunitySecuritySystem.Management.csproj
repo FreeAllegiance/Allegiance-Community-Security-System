@@ -1,0 +1,838 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7F043CBA-5620-4C5C-BAB8-7935C3644A89}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Allegiance.CommunitySecuritySystem.Management</RootNamespace>
+    <AssemblyName>Allegiance.CommunitySecuritySystem.Management</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkProfile />
+    <UseIISExpress>false</UseIISExpress>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <FilesToIncludeForPublish>OnlyFilesToRunTheApp</FilesToIncludeForPublish>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AjaxControlToolkit, Version=3.0.30930.28736, Culture=neutral, PublicKeyToken=28f01b0e84b6d53e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Documents and Settings\npirocanac\Local Settings\Application Data\Microsoft\VisualStudio\9.0\ProjectAssemblies\3gsgon8o01\AjaxControlToolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="CSSFriendly, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL" />
+    <Reference Include="Interop.Shell32, Version=1.0.0.0, Culture=neutral" />
+    <Reference Include="IZ.WebFileManager, Version=2.5.3.0, Culture=neutral, PublicKeyToken=332362b071cf6438, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Web.Mobile" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UtilityWrapper, Version=1.0.5691.26466, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Includes\UtilityWrapper.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AjaxProviders\Polls.svc" />
+    <Content Include="App_Themes\Default\jquery.maxlength.css" />
+    <Content Include="CaptchaImageGenerator.aspx" />
+    <Content Include="Content\Groups\Default.aspx" />
+    <Content Include="Content\VirtualMachineMarkers\Default.aspx" />
+    <Content Include="Content\MachineRecordExclusions\Default.aspx" />
+    <Content Include="Content\Polls\Default.aspx" />
+    <Content Include="Content\Polls\EditPoll.aspx" />
+    <Content Include="Enforcer\GameDetails.aspx" />
+    <Content Include="Enforcer\ServerLogs.aspx" />
+    <Content Include="ErrorPage.aspx" />
+    <Content Include="favicon.ico" />
+    <Content Include="Includes\mscompress.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Includes\msexpand.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Includes\UtilityWrapper.dll" />
+    <Content Include="ResetPassword.aspx" />
+    <Content Include="Scripts\jquery.maxlength.min.js" />
+    <Content Include="Scripts\jquery.watermark.min.js" />
+    <Content Include="Stats\PollResults.aspx" />
+    <Content Include="Users\GlobalMessage.aspx" />
+    <Content Include="Enforcer\IPReport.aspx" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AjaxProviders\AutoUpdate.svc.cs">
+      <DependentUpon>AutoUpdate.svc</DependentUpon>
+    </Compile>
+    <Compile Include="AjaxProviders\Polls.svc.cs">
+      <DependentUpon>Polls.svc</DependentUpon>
+    </Compile>
+    <Compile Include="AjaxProviders\Enforcer.svc.cs">
+      <DependentUpon>Enforcer.svc</DependentUpon>
+    </Compile>
+    <Compile Include="AjaxProviders\Squads.svc.cs">
+      <DependentUpon>Squads.svc</DependentUpon>
+    </Compile>
+    <Compile Include="AjaxProviders\User.svc.cs">
+      <DependentUpon>User.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Business\BackupItems.cs" />
+    <Compile Include="Business\CRCUtility_Old.cs" />
+    <Compile Include="Business\CRCUtility.cs" />
+    <Compile Include="Business\IPReportItem.cs" />
+    <Compile Include="CaptchaImageGenerator.aspx.cs">
+      <DependentUpon>CaptchaImageGenerator.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CaptchaImageGenerator.aspx.designer.cs">
+      <DependentUpon>CaptchaImageGenerator.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\BackupDetails.aspx.cs">
+      <DependentUpon>BackupDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\BackupDetails.aspx.designer.cs">
+      <DependentUpon>BackupDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Backups.aspx.cs">
+      <DependentUpon>Backups.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Backups.aspx.designer.cs">
+      <DependentUpon>Backups.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Data\BackupItem.cs" />
+    <Compile Include="Content\AutoUpdate\Data\RestorableFile.cs" />
+    <Compile Include="Content\AutoUpdate\DownloadItem.aspx.cs">
+      <DependentUpon>DownloadItem.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\DownloadItem.aspx.designer.cs">
+      <DependentUpon>DownloadItem.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Business\FileCollision.cs" />
+    <Compile Include="Content\AutoUpdate\Data\EditablePackage.cs" />
+    <Compile Include="Content\AutoUpdate\Data\EditablePackageFile.cs" />
+    <Compile Include="Content\AutoUpdate\Data\EditablePublication.cs" />
+    <Compile Include="Content\AutoUpdate\Data\FileInfoBase.cs" />
+    <Compile Include="Content\AutoUpdate\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\DownloadOrDeployPublication.aspx.cs">
+      <DependentUpon>DownloadOrDeployPublication.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\DownloadOrDeployPublication.aspx.designer.cs">
+      <DependentUpon>DownloadOrDeployPublication.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\EditPackage.aspx.cs">
+      <DependentUpon>EditPackage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\EditPackage.aspx.designer.cs">
+      <DependentUpon>EditPackage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\EditPublication.aspx.cs">
+      <DependentUpon>EditPublication.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\EditPublication.aspx.designer.cs">
+      <DependentUpon>EditPublication.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\FileManager.aspx.cs">
+      <DependentUpon>FileManager.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\FileManager.aspx.designer.cs">
+      <DependentUpon>FileManager.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Packages.aspx.cs">
+      <DependentUpon>Packages.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Packages.aspx.designer.cs">
+      <DependentUpon>Packages.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\PublicationDetailsIFrame.aspx.cs">
+      <DependentUpon>PublicationDetailsIFrame.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\PublicationDetailsIFrame.aspx.designer.cs">
+      <DependentUpon>PublicationDetailsIFrame.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\PublicationDownloaderIframe.aspx.cs">
+      <DependentUpon>PublicationDownloaderIframe.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\PublicationDownloaderIframe.aspx.designer.cs">
+      <DependentUpon>PublicationDownloaderIframe.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Publish.aspx.cs">
+      <DependentUpon>Publish.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\Publish.aspx.designer.cs">
+      <DependentUpon>Publish.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Business\Authorization.cs" />
+    <Compile Include="Business\AutoUpdateManager.cs" />
+    <Compile Include="Business\GroupRole.cs" />
+    <Compile Include="Business\UpdateItem.cs" />
+    <Compile Include="ChangePassword.aspx.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChangePassword.aspx.designer.cs">
+      <DependentUpon>ChangePassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\UI\UserControls\PackageContents.ascx.cs">
+      <DependentUpon>PackageContents.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\AutoUpdate\UI\UserControls\PackageContents.ascx.designer.cs">
+      <DependentUpon>PackageContents.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Groups\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Groups\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Groups\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\VirtualMachineMarkers\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\VirtualMachineMarkers\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\VirtualMachineMarkers\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\MachineRecordExclusions\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\MachineRecordExclusions\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\MachineRecordExclusions\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Motd\Data\ImageItem.cs" />
+    <Compile Include="Content\Motd\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Motd\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Motd\MotdDownloaderIframe.aspx.cs">
+      <DependentUpon>MotdDownloaderIframe.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Motd\MotdDownloaderIframe.aspx.designer.cs">
+      <DependentUpon>MotdDownloaderIframe.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Motd\MotdPreviewIframe.aspx.cs">
+      <DependentUpon>MotdPreviewIframe.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Motd\MotdPreviewIframe.aspx.designer.cs">
+      <DependentUpon>MotdPreviewIframe.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Motd\MotdTemplate.aspx.cs">
+      <DependentUpon>MotdTemplate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Motd\MotdTemplate.aspx.designer.cs">
+      <DependentUpon>MotdTemplate.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Motd\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Polls\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Polls\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Polls\EditPoll.aspx.cs">
+      <DependentUpon>EditPoll.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\Polls\EditPoll.aspx.designer.cs">
+      <DependentUpon>EditPoll.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Content\Polls\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Content\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateUser.aspx.cs">
+      <DependentUpon>CreateUser.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CreateUser.aspx.designer.cs">
+      <DependentUpon>CreateUser.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Enforcer\Data\Player.cs" />
+    <Compile Include="Enforcer\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Enforcer\GameDetails.aspx.cs">
+      <DependentUpon>GameDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\GameDetails.aspx.designer.cs">
+      <DependentUpon>GameDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Enforcer\Search.aspx.cs">
+      <DependentUpon>Search.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\Search.aspx.designer.cs">
+      <DependentUpon>Search.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Enforcer\ServerLogs.aspx.cs">
+      <DependentUpon>ServerLogs.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\ServerLogs.aspx.designer.cs">
+      <DependentUpon>ServerLogs.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Enforcer\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\UI\UserControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\UI\UserControls\Ban.ascx.cs">
+      <DependentUpon>Ban.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\UI\UserControls\Ban.ascx.designer.cs">
+      <DependentUpon>Ban.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="ErrorPage.aspx.cs">
+      <DependentUpon>ErrorPage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ErrorPage.aspx.designer.cs">
+      <DependentUpon>ErrorPage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ForgotPassword.aspx.cs">
+      <DependentUpon>ForgotPassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ForgotPassword.aspx.designer.cs">
+      <DependentUpon>ForgotPassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Format.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="HttpHandlers\BlockExecution.ashx.cs">
+      <DependentUpon>BlockExecution.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Logout.aspx.cs">
+      <DependentUpon>Logout.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Logout.aspx.designer.cs">
+      <DependentUpon>Logout.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="ResetPassword.aspx.cs">
+      <DependentUpon>ResetPassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ResetPassword.aspx.designer.cs">
+      <DependentUpon>ResetPassword.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SmartSiteMapProvider.cs" />
+    <Compile Include="Squads\AddAlias.aspx.cs">
+      <DependentUpon>AddAlias.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Squads\AddAlias.aspx.designer.cs">
+      <DependentUpon>AddAlias.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Squads\Data\SquadMember.cs" />
+    <Compile Include="Squads\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Squads\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Squads\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\BanList.aspx.cs">
+      <DependentUpon>BanList.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\BanList.aspx.designer.cs">
+      <DependentUpon>BanList.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Stats\Data\BanData.cs" />
+    <Compile Include="Stats\Data\FactionData.cs" />
+    <Compile Include="Stats\Data\MemberData.cs" />
+    <Compile Include="Stats\Data\SquadData.cs" />
+    <Compile Include="Stats\Faction.aspx.cs">
+      <DependentUpon>Faction.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\Faction.aspx.designer.cs">
+      <DependentUpon>Faction.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Stats\Leaderboard.aspx.cs">
+      <DependentUpon>Leaderboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\Leaderboard.aspx.designer.cs">
+      <DependentUpon>Leaderboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Stats\LeaderboardData.aspx.cs">
+      <DependentUpon>LeaderboardData.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\LeaderboardData.aspx.designer.cs">
+      <DependentUpon>LeaderboardData.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Stats\PollResults.aspx.cs">
+      <DependentUpon>PollResults.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\PollResults.aspx.designer.cs">
+      <DependentUpon>PollResults.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Stats\SquadRoster.aspx.cs">
+      <DependentUpon>SquadRoster.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Stats\SquadRoster.aspx.designer.cs">
+      <DependentUpon>SquadRoster.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Stats\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\MasterPages\Default.Master.cs">
+      <DependentUpon>Default.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\MasterPages\Default.Master.designer.cs">
+      <DependentUpon>Default.Master</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MasterPages\NoChrome.Master.cs">
+      <DependentUpon>NoChrome.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\MasterPages\NoChrome.Master.designer.cs">
+      <DependentUpon>NoChrome.Master</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\UserControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\UserControls\Footer.ascx.cs">
+      <DependentUpon>Footer.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\UserControls\Footer.ascx.designer.cs">
+      <DependentUpon>Footer.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\UserControls\TopNavigation.ascx.cs">
+      <DependentUpon>TopNavigation.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="UI\UserControls\TopNavigation.ascx.designer.cs">
+      <DependentUpon>TopNavigation.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\AddGroupRole.aspx.cs">
+      <DependentUpon>AddGroupRole.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\AddGroupRole.aspx.designer.cs">
+      <DependentUpon>AddGroupRole.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\AliasIframe.aspx.cs">
+      <DependentUpon>AliasIframe.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\AliasIframe.aspx.designer.cs">
+      <DependentUpon>AliasIframe.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\Data\EditableAlias.cs" />
+    <Compile Include="Users\Data\EditableRole.cs" />
+    <Compile Include="Users\Data\EditableUser.cs" />
+    <Compile Include="Users\Data\EditableGroupRole.cs" />
+    <Compile Include="Users\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\EditUser.aspx.cs">
+      <DependentUpon>EditUser.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\EditUser.aspx.designer.cs">
+      <DependentUpon>EditUser.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\GlobalMessage.aspx.cs">
+      <DependentUpon>GlobalMessage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\GlobalMessage.aspx.designer.cs">
+      <DependentUpon>GlobalMessage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Enforcer\IPReport.aspx.cs">
+      <DependentUpon>IPReport.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Enforcer\IPReport.aspx.designer.cs">
+      <DependentUpon>IPReport.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\LinkToLogin.aspx.cs">
+      <DependentUpon>LinkToLogin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\LinkToLogin.aspx.designer.cs">
+      <DependentUpon>LinkToLogin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\ManageLinks.aspx.cs">
+      <DependentUpon>ManageLinks.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\ManageLinks.aspx.designer.cs">
+      <DependentUpon>ManageLinks.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Users\UI\Page.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\UI\UserControls\AliasDetail.ascx.cs">
+      <DependentUpon>AliasDetail.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Users\UI\UserControls\AliasDetail.ascx.designer.cs">
+      <DependentUpon>AliasDetail.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Utility.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="UI\MasterPages\Default.Master" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AjaxProviders\Enforcer.svc" />
+    <Content Include="AjaxProviders\User.svc" />
+    <Content Include="App_Themes\Default\Default.css" />
+    <Content Include="App_Themes\Default\Default.skin" />
+    <Content Include="Content\AutoUpdate\Default.aspx" />
+    <Content Include="ChangePassword.aspx" />
+    <Content Include="CreateUser.aspx" />
+    <Content Include="Default.aspx" />
+    <Content Include="Enforcer\Default.aspx" />
+    <Content Include="Enforcer\Search.aspx" />
+    <Content Include="Enforcer\UI\UserControls\Ban.ascx" />
+    <Content Include="ForgotPassword.aspx" />
+    <Content Include="Images\dg_banned.png" />
+    <Content Include="Images\dg_notbanned.png" />
+    <None Include="Includes\AjaxControlToolkit\AjaxControlToolkit.dll" />
+    <None Include="Includes\AjaxControlToolkit\AjaxControlToolkit.pdb" />
+    <None Include="Includes\AjaxControlToolkit\ar\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\cs\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\de\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\es\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\fr\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\he\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\hi\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\it\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\ja\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\ko\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\nl\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\pt\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\ReadMe.html" />
+    <None Include="Includes\AjaxControlToolkit\ru\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\tr-TR\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\zh-CHS\AjaxControlToolkit.resources.dll" />
+    <None Include="Includes\AjaxControlToolkit\zh-CHT\AjaxControlToolkit.resources.dll" />
+    <Content Include="Login.aspx" />
+    <Content Include="Logout.aspx" />
+    <Content Include="Squads\Default.aspx" />
+    <Content Include="UI\UserControls\Footer.ascx" />
+    <Content Include="UI\UserControls\TopNavigation.ascx" />
+    <Content Include="Users\AddGroupRole.aspx" />
+    <Content Include="Users\AliasIframe.aspx" />
+    <Content Include="Users\Default.aspx" />
+    <Content Include="Users\EditUser.aspx" />
+    <Content Include="Users\UI\UserControls\AliasDetail.ascx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\Allegiance.CommunitySecuritySystem.DataAccess\Allegiance.CommunitySecuritySystem.DataAccess.csproj">
+      <Project>{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Allegiance.CommunitySecuritySystem.Common\Allegiance.CommunitySecuritySystem.Common.csproj">
+      <Project>{FC9B4878-2453-45FA-9387-41726866139E}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Allegiance.CommunitySecuritySystem.Server\Allegiance.CommunitySecuritySystem.Server.csproj">
+      <Project>{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.Server</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="AjaxProviders\AutoUpdate.svc" />
+    <Content Include="AjaxProviders\Squads.svc" />
+    <Content Include="App_Browsers\CSSFriendlyAdapters.browser" />
+    <Content Include="App_Themes\Default\ChangePassword.css" />
+    <Content Include="App_Themes\Default\CreateUserWizard.css" />
+    <Content Include="App_Themes\Default\GridView.css" />
+    <Content Include="App_Themes\Default\Images\ui-bg_diagonal-maze_20_6e4f1c_10x10.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_diagonal-maze_40_000000_10x10.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_10_eceadf_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_10_f8f7f6_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_15_eceadf_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_15_f7f3de_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_15_ffffff_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_65_654b24_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-bg_fine-grain_68_b83400_60x60.png" />
+    <Content Include="App_Themes\Default\Images\ui-icons_3572ac_256x240.png" />
+    <Content Include="App_Themes\Default\Images\ui-icons_8c291d_256x240.png" />
+    <Content Include="App_Themes\Default\Images\ui-icons_b83400_256x240.png" />
+    <Content Include="App_Themes\Default\Images\ui-icons_fbdb93_256x240.png" />
+    <Content Include="App_Themes\Default\jquery-ui-1.8.1.custom.css" />
+    <Content Include="App_Themes\Default\Login.css" />
+    <Content Include="App_Themes\Default\RecoverPassword.css" />
+    <Content Include="App_Themes\Default\superfish-navbar.css" />
+    <Content Include="App_Themes\Default\superfish.css" />
+    <Content Include="App_Themes\Default\TopNavigation.css" />
+    <Content Include="App_Themes\Images\arrows-ffffff.png" />
+    <Content Include="App_Themes\Images\shadow.png" />
+    <Content Include="App_Themes\Default\Images\ui-icons_222222_256x240.png" />
+    <Content Include="App_Themes\Default\Images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\AutoUpdate\BackupDetails.aspx" />
+    <Content Include="Content\AutoUpdate\Backups.aspx" />
+    <Content Include="Content\AutoUpdate\DownloadItem.aspx" />
+    <Content Include="Content\AutoUpdate\DownloadOrDeployPublication.aspx" />
+    <Content Include="Content\AutoUpdate\EditPackage.aspx" />
+    <Content Include="Content\AutoUpdate\EditPublication.aspx" />
+    <Content Include="Content\AutoUpdate\FileManager.aspx" />
+    <Content Include="Content\AutoUpdate\Packages.aspx" />
+    <Content Include="Content\AutoUpdate\PublicationDetailsIFrame.aspx" />
+    <Content Include="Content\AutoUpdate\PublicationDownloaderIframe.aspx" />
+    <Content Include="Content\AutoUpdate\Publish.aspx" />
+    <Content Include="Content\AutoUpdate\UI\UserControls\PackageContents.ascx" />
+    <Content Include="Content\Motd\Default.aspx" />
+    <Content Include="Content\Motd\glowtest.htm" />
+    <Content Include="Content\Motd\MotdDownloaderIframe.aspx" />
+    <Content Include="Content\Motd\MotdPreviewIframe.aspx" />
+    <Content Include="Content\Motd\MotdTemplate.aspx" />
+    <Content Include="Css\ie_only.css" />
+    <Content Include="Css\non_ie.css" />
+    <Content Include="Global.asax" />
+    <Content Include="Images\16x16\compressed.gif" />
+    <Content Include="Images\16x16\edit.gif" />
+    <Content Include="Images\16x16\excel.gif" />
+    <Content Include="Images\16x16\favorites.jpg" />
+    <Content Include="Images\16x16\html.gif" />
+    <Content Include="Images\16x16\image.gif" />
+    <Content Include="Images\16x16\media.gif" />
+    <Content Include="Images\16x16\mydocuments.jpg" />
+    <Content Include="Images\16x16\mypictures.jpg" />
+    <Content Include="Images\16x16\PowerPoint.gif" />
+    <Content Include="Images\16x16\script.gif" />
+    <Content Include="Images\16x16\smile.gif" />
+    <Content Include="Images\16x16\styleSheet.gif" />
+    <Content Include="Images\16x16\text.gif" />
+    <Content Include="Images\16x16\word.gif" />
+    <Content Include="Images\16x16\xml.gif" />
+    <Content Include="Images\16x16\zip.gif" />
+    <Content Include="Images\32x32\compressed.gif" />
+    <Content Include="Images\32x32\excel.gif" />
+    <Content Include="Images\32x32\favorites.jpg" />
+    <Content Include="Images\32x32\html.gif" />
+    <Content Include="Images\32x32\image.gif" />
+    <Content Include="Images\32x32\media.gif" />
+    <Content Include="Images\32x32\mydocuments.jpg" />
+    <Content Include="Images\32x32\mypictures.jpg" />
+    <Content Include="Images\32x32\PowerPoint.gif" />
+    <Content Include="Images\32x32\script.gif" />
+    <Content Include="Images\32x32\styleSheet.gif" />
+    <Content Include="Images\32x32\Word.gif" />
+    <Content Include="Images\32x32\xml.gif" />
+    <Content Include="Images\calendar.png" />
+    <Content Include="Images\dg_excluded.png" />
+    <Content Include="Images\dg_included.png" />
+    <Content Include="Images\motd\fakemessage.png" />
+    <Content Include="Images\motd\nebplnt01.png" />
+    <Content Include="Images\motd\nebplnt02.png" />
+    <Content Include="Images\motd\nebplnt03.png" />
+    <Content Include="Images\motd\nebplnt04.png" />
+    <Content Include="Images\motd\nebplnt05.png" />
+    <Content Include="Images\motd\nebplnt06.png" />
+    <Content Include="Images\motd\nebplnt07.png" />
+    <Content Include="Images\submenu_indicator.png" />
+    <Content Include="Images\throbber.gif" />
+    <None Include="Includes\CSSFriendly.dll" />
+    <Content Include="HttpHandlers\BlockExecution.ashx" />
+    <None Include="Images\32x32\Thumbs.db" />
+    <None Include="Includes\AjaxControlToolkit\EULA.rtf" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Includes\ICSharpCode.SharpZipLib.dll" />
+    <None Include="Includes\Interop.Shell32.dll" />
+    <None Include="Includes\IZ.WebFileManager.dll" />
+    <None Include="Includes\IZ.WebFileManager.XML" />
+    <Content Include="Scripts\FAZ-glowtext.js" />
+    <Content Include="Scripts\jquery-1.4.2.min.js" />
+    <Content Include="Scripts\jquery-ui-1.8.1.custom.min.js" />
+    <Content Include="Scripts\jquery.columnhover.pack.js" />
+    <Content Include="Scripts\jquery.hoverIntent.minified.js" />
+    <Content Include="Scripts\sorttable.js" />
+    <Content Include="Scripts\superfish.js" />
+    <Content Include="Squads\AddAlias.aspx" />
+    <Content Include="Stats\BanList.aspx" />
+    <Content Include="Stats\Faction.aspx" />
+    <Content Include="Stats\Leaderboard.aspx" />
+    <Content Include="Stats\LeaderboardData.aspx" />
+    <Content Include="Stats\SquadRoster.aspx" />
+    <Content Include="UI\MasterPages\NoChrome.Master" />
+    <Content Include="Users\LinkToLogin.aspx" />
+    <Content Include="Users\ManageLinks.aspx" />
+    <Content Include="Web.sitemap" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>29408</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>
+          </IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

@@ -1,0 +1,457 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="CSS" Class="CSSDataContext" Serialization="Unidirectional" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=localhost;Initial Catalog=CSS;Persist Security Info=True;User ID=css_server" SettingsObjectName="Allegiance.CommunitySecuritySystem.DataAccess.Properties.Settings" SettingsPropertyName="CSSConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.UsedKey" Member="UsedKeys">
+    <Type Name="UsedKey">
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ActiveKeyId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="DateUsed" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="ActiveKey_UsedKey" Member="ActiveKey" ThisKey="ActiveKeyId" OtherKey="Id" Type="ActiveKey" IsForeignKey="true" />
+      <Association Name="Login_UsedKey" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[Group]" Member="Groups">
+    <Type Name="Group">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(25) NOT NULL" CanBeNull="false" />
+      <Column Name="Tag" Type="System.String" DbType="NVarChar(5) NOT NULL" CanBeNull="false" />
+      <Column Name="IsSquad" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Group_Group_Alias_GroupRole" Member="Group_Alias_GroupRoles" ThisKey="Id" OtherKey="GroupId" Type="Group_Alias_GroupRole" />
+      <Association Name="Group_GroupMessage" Member="GroupMessages" ThisKey="Id" OtherKey="GroupId" Type="GroupMessage" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Group_Alias_GroupRole" Member="Group_Alias_GroupRoles">
+    <Type Name="Group_Alias_GroupRole">
+      <Column Name="GroupId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="AliasId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="GroupRoleId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Group_Group_Alias_GroupRole" Member="Group" ThisKey="GroupId" OtherKey="Id" Type="Group" IsForeignKey="true" />
+      <Association Name="GroupRole_Group_Alias_GroupRole" Member="GroupRole" ThisKey="GroupRoleId" OtherKey="Id" Type="GroupRole" IsForeignKey="true" />
+      <Association Name="Alias_Group_Alias_GroupRole" Member="Alias" ThisKey="AliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GroupRequest" Member="GroupRequests">
+    <Type Name="GroupRequest">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RequestTypeId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="AliasId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GroupId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="GroupRequestType_GroupRequest" Member="GroupRequestType" ThisKey="RequestTypeId" OtherKey="Id" Type="GroupRequestType" IsForeignKey="true" />
+      <Association Name="Alias_GroupRequest" Member="Alias" ThisKey="AliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GroupRequestType" Member="GroupRequestTypes">
+    <Type Name="GroupRequestType">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(25) NOT NULL" CanBeNull="false" />
+      <Association Name="GroupRequestType_GroupRequest" Member="GroupRequests" ThisKey="Id" OtherKey="RequestTypeId" Type="GroupRequest" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GroupRole" Member="GroupRoles">
+    <Type Name="GroupRole">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(25) NOT NULL" CanBeNull="false" />
+      <Column Name="Token" Type="System.Char" DbType="NChar(1)" CanBeNull="true" />
+      <Association Name="GroupRole_Group_Alias_GroupRole" Member="Group_Alias_GroupRoles" ThisKey="Id" OtherKey="GroupRoleId" Type="Group_Alias_GroupRole" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Login_Role" Member="Login_Roles">
+    <Type Name="Login_Role">
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="RoleId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="Role_Login_Role" Member="Role" ThisKey="RoleId" OtherKey="Id" Type="Role" IsForeignKey="true" />
+      <Association Name="Login_Login_Role" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MachineRecordType" Member="MachineRecordTypes">
+    <Type Name="MachineRecordType">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Association Name="MachineRecordType_MachineRecord" Member="MachineRecords" ThisKey="Id" OtherKey="RecordTypeId" Type="MachineRecord" />
+      <Association Name="MachineRecordType_MachineRecordExclusion" Member="MachineRecordExclusions" ThisKey="Id" OtherKey="RecordTypeId" Type="MachineRecordExclusion" />
+      <Association Name="MachineRecordType_VirtualMachineMarker" Member="VirtualMachineMarkers" ThisKey="Id" OtherKey="RecordTypeId" Type="VirtualMachineMarker" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Role" Member="Roles">
+    <Type Name="Role">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(20)" CanBeNull="true" />
+      <Association Name="Role_Login_Role" Member="Login_Roles" ThisKey="Id" OtherKey="RoleId" Type="Login_Role" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SessionStatus" Member="SessionStatus">
+    <Type Name="SessionStatus">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Association Name="SessionStatus_Session" Member="Sessions" ThisKey="Id" OtherKey="SessionStatusId" Type="Session" />
+    </Type>
+  </Table>
+  <Table Name="dbo.TransformMethod" Member="TransformMethods">
+    <Type Name="TransformMethod">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Text" Type="System.String" DbType="NText NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Association Name="TransformMethod_ActiveKey" Member="ActiveKeys" ThisKey="Id" OtherKey="TransformMethodId" Type="ActiveKey" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Lobby" Member="Lobbies">
+    <Type Name="Lobby">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Host" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="BasePath" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
+      <Column Name="IsRestrictive" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="IsEnabled" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="Lobby_Lobby_Login" Member="Lobby_Logins" ThisKey="Id" OtherKey="LobbyId" Type="Lobby_Login" />
+      <Association Name="Lobby_AutoUpdateFile_Lobby" Member="AutoUpdateFile_Lobbies" ThisKey="Id" OtherKey="LobbyId" Type="AutoUpdateFile_Lobby" />
+      <Association Name="Lobby_Motd" Member="Motds" ThisKey="Id" OtherKey="LobbyId" Type="Motd" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Lobby_Login" Member="Lobby_Logins">
+    <Type Name="Lobby_Login">
+      <Column Name="LobbyId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="Lobby_Lobby_Login" Member="Lobby" ThisKey="LobbyId" OtherKey="Id" Type="Lobby" IsForeignKey="true" />
+      <Association Name="Login_Lobby_Login" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Error" Member="Errors">
+    <Type Name="Error">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ExceptionType" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="StackTrace" Type="System.String" DbType="NText NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="InnerMessage" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="DateOccurred" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[Log]" Member="Logs">
+    <Type Name="Log">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Type" Type="System.Byte" DbType="TinyInt NOT NULL" CanBeNull="false" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DateOccurred" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.AutoUpdateFile_Lobby" Member="AutoUpdateFile_Lobbies">
+    <Type Name="AutoUpdateFile_Lobby">
+      <Column Name="AutoUpdateFileId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="LobbyId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ValidChecksum" Type="System.String" DbType="NChar(28)" CanBeNull="true" />
+      <Column Name="CurrentVersion" Type="System.String" DbType="NVarChar(15) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Lobby_AutoUpdateFile_Lobby" Member="Lobby" ThisKey="LobbyId" OtherKey="Id" Type="Lobby" IsForeignKey="true" />
+      <Association Name="AutoUpdateFile_AutoUpdateFile_Lobby" Member="AutoUpdateFile" ThisKey="AutoUpdateFileId" OtherKey="Id" Type="AutoUpdateFile" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Session" Member="Sessions">
+    <Type Name="Session">
+      <Column Name="Id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ActiveKeyId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="SessionStatusId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateLastCheckIn" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="IPAddress" Type="System.String" DbType="VarChar(40) NOT NULL" CanBeNull="false" />
+      <Column Name="AliasId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="SessionStatus_Session" Member="SessionStatus" ThisKey="SessionStatusId" OtherKey="Id" Type="SessionStatus" IsForeignKey="true" />
+      <Association Name="ActiveKey_Session" Member="ActiveKey" ThisKey="ActiveKeyId" OtherKey="Id" Type="ActiveKey" IsForeignKey="true" />
+      <Association Name="Alias_Session" Member="Alias" ThisKey="AliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+      <Association Name="Login_Session" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.BanClass" Member="BanClasses">
+    <Type Name="BanClass">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NChar(20) NOT NULL" CanBeNull="false" />
+      <Association Name="BanClass_BanType" Member="BanTypes" ThisKey="Id" OtherKey="BanClassId" Type="BanType" />
+    </Type>
+  </Table>
+  <Table Name="dbo.BanType" Member="BanTypes">
+    <Type Name="BanType">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RocNumber" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="SrNumber" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Description" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="BanClassId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="BaseTimeInMinutes" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="InfractionsBeforePermanentBan" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="IsIncremental" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="BanType_Ban" Member="Bans" ThisKey="Id" OtherKey="BanTypeId" Type="Ban" />
+      <Association Name="BanClass_BanType" Member="BanClass" ThisKey="BanClassId" OtherKey="Id" Type="BanClass" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Login_UnlinkedLogin" Member="Login_UnlinkedLogins">
+    <Type Name="Login_UnlinkedLogin">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LoginId1" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LoginId2" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Login_Login_UnlinkedLogin" Member="Login" ThisKey="LoginId1" OtherKey="Id" Type="Login" IsForeignKey="true" />
+      <Association Name="Login_Login_UnlinkedLogin1" Member="Login1" ThisKey="LoginId2" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Motd" Member="Motds">
+    <Type Name="Motd">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Logo" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Banner" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="PrimaryHeading" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="PrimaryText" Type="System.String" DbType="Text NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="SecondaryHeading" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="SecondaryText" Type="System.String" DbType="Text NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="Details" Type="System.String" DbType="Text NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="PaddingCrCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LastUpdated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LobbyId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Lobby_Motd" Member="Lobby" ThisKey="LobbyId" OtherKey="Id" Type="Lobby" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Captcha" Member="Captchas">
+    <Type Name="Captcha">
+      <Column Name="Id" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Answer" Type="System.String" DbType="NVarChar(10) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="IpAddress" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GroupMessage_Alias" Member="GroupMessage_Alias">
+    <Type Name="GroupMessage_Alias">
+      <Column Name="GroupMessageId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="AliasId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="DateViewed" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="GroupMessage_GroupMessage_Alias" Member="GroupMessage" ThisKey="GroupMessageId" OtherKey="Id" Type="GroupMessage" IsForeignKey="true" />
+      <Association Name="Alias_GroupMessage_Alias" Member="Alias" ThisKey="AliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.PollVote" Member="PollVotes">
+    <Type Name="PollVote">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="PollOptionId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="PollOption_PollVote" Member="PollOption" ThisKey="PollOptionId" OtherKey="Id" Type="PollOption" IsForeignKey="true" />
+      <Association Name="Login_PollVote" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MachineRecord" Member="MachineRecords">
+    <Type Name="MachineRecord">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="RecordTypeId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Identifier" Type="System.String" DbType="NVarChar(1024) NOT NULL" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="MachineRecordType_MachineRecord" Member="MachineRecordType" ThisKey="RecordTypeId" OtherKey="Id" Type="MachineRecordType" IsForeignKey="true" />
+      <Association Name="Login_MachineRecord" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.PersonalMessage" Member="PersonalMessages">
+    <Type Name="PersonalMessage">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Subject" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateToSend" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateExpires" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DateViewed" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="SenderAliasId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Alias_PersonalMessage" Member="Alias" ThisKey="SenderAliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+      <Association Name="Login_PersonalMessage" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ActiveKey" Member="ActiveKeys">
+    <Type Name="ActiveKey">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Token" Type="System.String" DbType="NVarChar(95) NOT NULL" CanBeNull="false" />
+      <Column Name="Filename" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="RSACspBlob" Type="System.Data.Linq.Binary" DbType="Image NOT NULL" CanBeNull="false" UpdateCheck="Never" />
+      <Column Name="TransformMethodId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="IsValid" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="ActiveKey_UsedKey" Member="UsedKeys" ThisKey="Id" OtherKey="ActiveKeyId" Type="UsedKey" />
+      <Association Name="ActiveKey_Session" Member="Sessions" ThisKey="Id" OtherKey="ActiveKeyId" Type="Session" />
+      <Association Name="TransformMethod_ActiveKey" Member="TransformMethod" ThisKey="TransformMethodId" OtherKey="Id" Type="TransformMethod" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.PollOption" Member="PollOptions">
+    <Type Name="PollOption">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="PollId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="[Option]" Member="Option" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="VoteCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="PollOption_PollVote" Member="PollVotes" ThisKey="Id" OtherKey="PollOptionId" Type="PollVote" />
+      <Association Name="Poll_PollOption" Member="Poll" ThisKey="PollId" OtherKey="Id" Type="Poll" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Poll" Member="Polls">
+    <Type Name="Poll">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Question" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateExpires" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LastRecalculation" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Poll_PollOption" Member="PollOptions" ThisKey="Id" OtherKey="PollId" Type="PollOption" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GroupMessage" Member="GroupMessages">
+    <Type Name="GroupMessage">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Subject" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="GroupId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateToSend" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateExpires" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="SenderAliasId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="GroupMessage_GroupMessage_Alias" Member="GroupMessage_Alias" ThisKey="Id" OtherKey="GroupMessageId" Type="GroupMessage_Alias" />
+      <Association Name="Group_GroupMessage" Member="Group" ThisKey="GroupId" OtherKey="Id" Type="Group" IsForeignKey="true" />
+      <Association Name="Alias_GroupMessage" Member="Alias" ThisKey="SenderAliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[Identity]" Member="Identities">
+    <Type Name="Identity">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DateLastLogin" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="LastGlobalMessageDelivery" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Identity_Login" Member="Logins" ThisKey="Id" OtherKey="IdentityId" Type="Login" />
+      <Association Name="Identity_LogIP" Member="LogIPs" ThisKey="Id" OtherKey="IdentityId" Type="LogIP" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Alias" Member="Alias">
+    <Type Name="Alias">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Callsign" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="IsDefault" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="IsActive" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Alias_Group_Alias_GroupRole" Member="Group_Alias_GroupRoles" ThisKey="Id" OtherKey="AliasId" Type="Group_Alias_GroupRole" />
+      <Association Name="Alias_GroupRequest" Member="GroupRequests" ThisKey="Id" OtherKey="AliasId" Type="GroupRequest" />
+      <Association Name="Alias_Session" Member="Sessions" ThisKey="Id" OtherKey="AliasId" Type="Session" />
+      <Association Name="Alias_GroupMessage_Alias" Member="GroupMessage_Alias" ThisKey="Id" OtherKey="AliasId" Type="GroupMessage_Alias" />
+      <Association Name="Alias_PersonalMessage" Member="PersonalMessages" ThisKey="Id" OtherKey="SenderAliasId" Type="PersonalMessage" />
+      <Association Name="Alias_GroupMessage" Member="GroupMessages" ThisKey="Id" OtherKey="SenderAliasId" Type="GroupMessage" />
+      <Association Name="Alias_Ban" Member="Bans" ThisKey="Id" OtherKey="AliasID" Type="Ban" />
+      <Association Name="Alias_AliasBank" Member="AliasBanks" ThisKey="Id" OtherKey="AliasId" Type="AliasBank" />
+      <Association Name="Login_Alias" Member="Login" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.MachineRecordExclusions" Member="MachineRecordExclusions">
+    <Type Name="MachineRecordExclusion">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="IdentifierMask" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="RecordTypeId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="MachineRecordType_MachineRecordExclusion" Member="MachineRecordType" ThisKey="RecordTypeId" OtherKey="Id" Type="MachineRecordType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.VirtualMachineMarker" Member="VirtualMachineMarkers">
+    <Type Name="VirtualMachineMarker">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="IdentifierMask" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="RecordTypeId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="MachineRecordType_VirtualMachineMarker" Member="MachineRecordType" ThisKey="RecordTypeId" OtherKey="Id" Type="MachineRecordType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.IPConverge" Member="IPConverges">
+    <Type Name="IPConverge">
+      <Column Name="ApiCode" Type="System.String" DbType="VarChar(32) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ProductId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Added" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="IpAddress" Type="System.String" DbType="VarChar(16) NOT NULL" CanBeNull="false" />
+      <Column Name="Url" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="HttpUser" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="HttpPassword" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Login" Member="Logins">
+    <Type Name="Login">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Username" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="Password" Type="System.String" DbType="NVarChar(1024) NOT NULL" CanBeNull="false" />
+      <Column Name="Email" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="IdentityId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="AllowVirtualMachineLogin" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="PasswordResetGuid" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="PasswordResetSendDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Login_UsedKey" Member="UsedKeys" ThisKey="Id" OtherKey="LoginId" Type="UsedKey" />
+      <Association Name="Login_Login_Role" Member="Login_Roles" ThisKey="Id" OtherKey="LoginId" Type="Login_Role" />
+      <Association Name="Login_Lobby_Login" Member="Lobby_Logins" ThisKey="Id" OtherKey="LoginId" Type="Lobby_Login" />
+      <Association Name="Login_Session" Member="Sessions" Storage="_Session" ThisKey="Id" OtherKey="LoginId" Type="Session" />
+      <Association Name="Login_Login_UnlinkedLogin" Member="Login_UnlinkedLogins" ThisKey="Id" OtherKey="LoginId1" Type="Login_UnlinkedLogin" />
+      <Association Name="Login_Login_UnlinkedLogin1" Member="Login_UnlinkedLogins1" ThisKey="Id" OtherKey="LoginId2" Type="Login_UnlinkedLogin" />
+      <Association Name="Login_PollVote" Member="PollVotes" ThisKey="Id" OtherKey="LoginId" Type="PollVote" />
+      <Association Name="Login_MachineRecord" Member="MachineRecords" ThisKey="Id" OtherKey="LoginId" Type="MachineRecord" />
+      <Association Name="Login_PersonalMessage" Member="PersonalMessages" ThisKey="Id" OtherKey="LoginId" Type="PersonalMessage" />
+      <Association Name="Login_Alias" Member="Aliases" Storage="_Alias" ThisKey="Id" OtherKey="LoginId" Type="Alias" />
+      <Association Name="Login_Ban" Member="IssuedBans" Storage="_Bans" ThisKey="Id" OtherKey="BannedByLoginId" Type="Ban" />
+      <Association Name="Login_Ban1" Member="Bans" Storage="_Bans1" ThisKey="Id" OtherKey="LoginId" Type="Ban" />
+      <Association Name="Identity_Login" Member="Identity" ThisKey="IdentityId" OtherKey="Id" Type="Identity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Ban" Member="Bans">
+    <Type Name="Ban">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="BannedByLoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Reason" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateExpires" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="InEffect" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="BanTypeId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="AliasID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Alias_Ban" Member="Alias" ThisKey="AliasID" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+      <Association Name="BanType_Ban" Member="BanType" ThisKey="BanTypeId" OtherKey="Id" Type="BanType" IsForeignKey="true" />
+      <Association Name="Login_Ban" Member="BanningLogin" Storage="_Login" ThisKey="BannedByLoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+      <Association Name="Login_Ban1" Member="Login" Storage="_Login1" ThisKey="LoginId" OtherKey="Id" Type="Login" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.LogIP" Member="LogIPs">
+    <Type Name="LogIP">
+      <Column Name="IPAddress" Type="System.String" DbType="NVarChar(50) NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="IdentityId" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="LastAccessed" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Identity_LogIP" Member="Identity" ThisKey="IdentityId" OtherKey="Id" Type="Identity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.AliasBank" Member="AliasBanks">
+    <Type Name="AliasBank">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="AliasId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Callsign" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Alias_AliasBank" Member="Alias" ThisKey="AliasId" OtherKey="Id" Type="Alias" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.AutoUpdateFile" Member="AutoUpdateFiles">
+    <Type Name="AutoUpdateFile">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Filename" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
+      <Column Name="IsProtected" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="AutoUpdateFile_AutoUpdateFile_Lobby" Member="AutoUpdateFile_Lobbies" ThisKey="Id" OtherKey="AutoUpdateFileId" Type="AutoUpdateFile_Lobby" />
+    </Type>
+  </Table>
+  <Function Name="dbo.AvailableKey" Method="AvailableKey" IsComposable="true">
+    <Parameter Name="LoginId" Parameter="loginId" Type="System.Int32" DbType="Int" />
+    <ElementType Name="AvailableKeyResult">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Token" Type="System.String" DbType="NVarChar(95) NOT NULL" CanBeNull="false" />
+      <Column Name="Filename" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="TransformMethodId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="IsValid" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.FindAutoUpdateFiles" Method="FindAutoUpdateFiles" IsComposable="true">
+    <Parameter Name="LobbyId" Parameter="lobbyId" Type="System.Int32" DbType="Int" />
+    <ElementType Name="FindAutoUpdateFilesResult">
+      <Column Name="AutoUpdateFileId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LobbyId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="ValidChecksum" Type="System.String" DbType="NChar(28)" CanBeNull="true" />
+      <Column Name="CurrentVersion" Type="System.String" DbType="NVarChar(15) NOT NULL" CanBeNull="false" />
+      <Column Name="DateCreated" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="Filename" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
+      <Column Name="IsProtected" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+    </ElementType>
+  </Function>
+</Database>

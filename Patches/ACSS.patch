@@ -1,0 +1,2115 @@
+Index: .
+===================================================================
+--- .	(revision 999)
++++ .	(working copy)
+
+Property changes on: .
+___________________________________________________________________
+Modified: svn:ignore
+## -1 +1,2 ##
++objs10
+ objs9
+Index: src/_Utility/Utility.h
+===================================================================
+--- src/_Utility/Utility.h	(revision 999)
++++ src/_Utility/Utility.h	(working copy)
+@@ -55,7 +55,7 @@
+ const int c_cbDescription   = c_cbDescriptionDB + 1;
+ const int c_cbName          = c_cbNameDB        + 1;
+ const int c_cbLocAbrev      = c_cbLocAbrevDB    + 1;
+-const int c_cbCDKey         = 32 + 1; // TODO: fill in the correct length
++const int c_cbCDKey         = 1024 + 1; // BT - 9/11/2010 - widened to support longer auth tokens.
+ const int c_cbPassportName  = 256 + 1;
+ 
+ class _exposed List_utl
+Index: src/clintlib/appmsg.cpp
+===================================================================
+--- src/clintlib/appmsg.cpp	(revision 999)
++++ src/clintlib/appmsg.cpp	(working copy)
+@@ -3480,6 +3480,7 @@
+             m_szLobbyCharName[0] = '\0';
+         }
+         break;
++	
+ 
+         case FM_S_LOGON_CLUB_ACK:
+         {
+Index: src/clintlib/clintlib.cpp
+===================================================================
+--- src/clintlib/clintlib.cpp	(revision 999)
++++ src/clintlib/clintlib.cpp	(working copy)
+@@ -1295,6 +1295,9 @@
+     if (m_strCDKey.IsEmpty())
+         m_strCDKey = ZString(ci.szName).ToUpper();
+ 
++	char szCdKey[2064];
++	strcpy(szCdKey, (PCC)m_strCDKey);
++
+     if (m_fm.IsConnected())
+     {
+         ZSucceeded(hr);
+@@ -1302,10 +1305,12 @@
+         SetMessageType(c_mtGuaranteed);
+         BEGIN_PFM_CREATE(m_fm, pfmLogon, C, LOGONREQ)
+             FM_VAR_PARM(ci.szName, CB_ZTS)
++			
+             FM_VAR_PARM(ci.pZoneTicket, ci.cbZoneTicket)
+         // wlp 2006 - this is the ASGS Ticket
+-        //     FM_VAR_PARM((PCC)m_strCDKey, CB_ZTS)            
+-             FM_VAR_PARM("FERAL-1234567890123456", CB_ZTS)            // wlp 2006 - Don't send ASGS token to game server
++		// BT - 9/11/2010 - Sending the token to the server so that the server will also enforce authentication. 
++             FM_VAR_PARM(szCdKey, CB_ZTS)            
++             //FM_VAR_PARM("FERAL-1234567890123456", CB_ZTS)            // wlp 2006 - Don't send ASGS token to game server // BT 9/11/2010 - Changing this to send it. over.
+             FM_VAR_PARM(szPassword, CB_ZTS)
+         END_PFM_CREATE
+         pfmLogon->fedsrvVer = MSGVER;
+Index: src/FedSrv/FedSrv.CPP
+===================================================================
+--- src/FedSrv/FedSrv.CPP	(revision 999)
++++ src/FedSrv/FedSrv.CPP	(working copy)
+@@ -26,101 +26,13 @@
+ 
+ //appweb -Imago
+ static Mpr *mpr;
++static MprMutex	*mutex;
++
+ #ifdef _DEBUG
+-static MprLogModule *tMod;
++	static MprLogModule *tMod;
+ #endif
+-static MprMutex	*mutex;
+ 
+-static void doASGS(void* data, MprThread *threadp) {
+-	CSQLQuery * pQuery = (CSQLQuery *)data;  //use the AZ legacy data & callback
+-	CQLogonStats * pls = (CQLogonStats *)data;
+-	CQLogonStatsData * pqd = pls->GetData();
+ 
+-	int contentLen = 0; char *content; char szResponse[MAX_PATH];
+-	RankID myRank = -2; // -3 wait, -2 wrong rank, -1 callsign does not exist, >=0 valid rank
+-	char szURL[MAX_PATH]; char szName[c_cbName];
+-	Strcpy(szURL,"http://asgs.alleg.net/asgs/services.asmx/GetPlayerRank?Callsign=");
+-
+-	// one thread per connecting player
+-	Strcpy(szName,pqd->szCharacterName);
+-
+-	// ignore "tokens" in player name
+-	ZString strName = szName;
+-	if ((isalnum(szName[0]) == 0) && (strName.Left(1) != "_"))
+-		Strcpy(szName,strName.RightOf(1));
+-
+-	// add the name to the url
+-	Strcat(szURL,szName);
+-
+-	//Imago check only if connected to a lobby - 6/26/09
+-	if (g.fmLobby.IsConnected()) {
+-
+-        // First make sure we can write to a socket
+-        MprSocket* socket = new MprSocket();
+-        socket->openClient("asgs.alleg.net",80,0);
+-        int iwrite = socket->_write("GET /\r\n");
+-        delete socket;
+-
+-        MaClient* client = new MaClient();
+-	    client->setTimeout(3000);
+-	    client->setRetries(1);
+-	    client->setKeepAlive(0);
+-
+-        if (iwrite == 7) { // make sure we wrote 7 bytes
+-	        client->getRequest(szURL);
+-	        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
+-		        content = client->getResponseContent(&contentLen);
+-        }
+-
+-		if (contentLen > 0) { // there's POSITIVE content, we excpect it a certain way...
+-			ZString strContent = content;
+-			strContent = strContent.RightOf(88);
+-			strContent = strContent.LeftOf("<");
+-			Strcpy(szResponse,(PCC)strContent);
+-
+-			// the only explicit error known, Pook?
+-			if (Strcmp(strtok(szResponse,"|"),"0") != 0 ) {
+-					myRank = -1;
+-			} else {
+-					myRank = atoi(strtok(NULL,"|"));
+-			}
+-
+-			// sanity check
+-			if (myRank <= SHRT_MAX && myRank >= SHRT_MIN) {
+-				mutex->lock();
+-				pqd->rank = myRank;
+-				mutex->unlock();
+-			} else { // insanity
+-				mutex->lock();
+-				pqd->rank = -2;
+-				mutex->unlock();
+-			}
+-		} else { // mmf/imago no content failover uses the rank from the playerName(#) or go with 0 (Newbie)
+-			int strLen = strName.GetLength();
+-			int leftParen = strName.ReverseFind('(',0);
+-			if (leftParen>=1) { //rank in the name
+-				char szRank[3];
+-				Strncpy(szRank,(PCC)strName+leftParen+1,(strLen-leftParen)-1);
+-				myRank = atoi(szRank);
+-				if (!((myRank>0) && (myRank<100))) { //more insanity
+-					myRank=-2; // you are the wrong rank for all missions!
+-				}
+-			} else { //no rank in name
+-				myRank = 0;
+-			}
+-			mutex->lock();
+-			pqd->rank = myRank;
+-			mutex->unlock();
+-		}
+-        delete client;
+-	} else { //not connected to a lobby, just set rank to 0 - imago 6/26/09
+-		pqd->rank = 0;
+-	}
+-
+-	// tell the main thread we've finished using the existing thread msg for AZ SQL
+-	PostThreadMessage(g.idReceiveThread, wm_sql_querydone, (WPARAM) NULL, (LPARAM) pQuery);
+-}
+-
+ #if !defined(ALLSRV_STANDALONE)
+ void DoDecrypt(int size, char* pdata)
+ {
+@@ -5413,12 +5325,13 @@
+       char * szReason = "Sorry Charlie. Something \"weird\" happened."; // default failure message
+       bool fRetry = false;
+ 
++	  
+       // sanity check the message
+       TrapHackBootNoPlayer(NULL != FM_VAR_REF(pfmLogon, CharacterName)
+           && NULL != memchr(FM_VAR_REF(pfmLogon, CharacterName), 0, c_cbName));
+       TrapHackBootNoPlayer(NULL == FM_VAR_REF(pfmLogon, MissionPassword)
+           || NULL != memchr(FM_VAR_REF(pfmLogon, MissionPassword), 0, c_cbGamePassword));
+-      TrapHackBootNoPlayer(NULL != FM_VAR_REF(pfmLogon, CDKey)
++	  TrapHackBootNoPlayer(NULL != FM_VAR_REF(pfmLogon, CDKey)
+           && NULL != memchr(FM_VAR_REF(pfmLogon, CDKey), 0, c_cbCDKey));
+ 
+       if (pfmLogon->fedsrvVer == MSGVER)
+@@ -5501,14 +5414,35 @@
+         else
+           pqd->szPassword[0] = 0;
+         lstrcpy(pqd->szCDKey, FM_VAR_REF(pfmLogon, CDKey));
++
+         pqd->fValid = fValid;
+         pqd->dwConnectionID = cnxnFrom.GetID();
+ 
+-		char mprthname[9];
+-		mprSprintf(mprthname, sizeof(mprthname), "%d",pqd->dwConnectionID);
+-		MprThread* threadp = new MprThread(doASGS, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname);
+-		threadp->start(); //this could fail if a player is trying to login /w the same cnxn at the same time? (NYI TrapHack) - Imago 7/22/08
++		//char mprthname[9];
++		//mprSprintf(mprthname, sizeof(mprthname), "%d",pqd->dwConnectionID);
++		//MprThread* threadp = new MprThread(doASGS, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname);
++		//threadp->start(); //this could fail if a player is trying to login /w the same cnxn at the same time? (NYI TrapHack) - Imago 7/22/08
+ 
++		// BT - 12/21/2010 - Use a message to the lobby server to get the player's rank details instead 
++		// direct calls to the lobby web service.
++		BEGIN_PFM_CREATE(g.fmLobby, pfmPlayerRank, LS, PLAYER_RANK)
++			FM_VAR_PARM(PCC(pqd->szCharacterName), CB_ZTS) 
++			FM_VAR_PARM(PCC(pqd->szReason), CB_ZTS) 
++			FM_VAR_PARM(PCC(pqd->szPassword), CB_ZTS) 
++			FM_VAR_PARM(PCC(pqd->szCDKey), CB_ZTS) 
++		END_PFM_CREATE
++
++		pfmPlayerRank->characterID = pqd->characterID;
++		pfmPlayerRank->fCanCheat = pqd->fCanCheat;
++		pfmPlayerRank->fRetry = pqd->fRetry;
++		pfmPlayerRank->dwCookie = pqd->dwCookie;
++		pfmPlayerRank->fValid = pqd->fValid;
++		pfmPlayerRank->dwConnectionID = pqd->dwConnectionID;
++
++		g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
++
++		// Wait for a PLAYER_RANK message to come back from the lobby.
++
+ #if !defined(ALLSRV_STANDALONE)
+         if (fValid)
+           g.sql.PostQuery(pquery);
+@@ -5561,6 +5495,8 @@
+       break;
+     }
+ 
++
++
+     case FM_C_TREASURE_ACK:
+     {
+       if (!pfsMission || (pfsMission->GetStage() != STAGE_STARTED))
+Index: src/FedSrv/FedSrv.H
+===================================================================
+--- src/FedSrv/FedSrv.H	(revision 999)
++++ src/FedSrv/FedSrv.H	(working copy)
+@@ -378,6 +378,7 @@
+ void ChangeStationOwners(IstationIGC * pstation, CFSMission * pfsMission, IsideIGC* iSideNew);
+ void ExportObj(IbaseIGC * pIGC, ObjectType ot, FMD_S_EXPORT ** ppfmExport);
+ void CheatDPGroups(CFSShip * pfsShip);
++void GotLogonDetails(CQLogonStats * pquery); // needed by fslobby.cpp.
+ 
+ // <NKM> 8-Aug-2004
+ // DX 9 doesn't use callbacks for this
+Index: src/FedSrv/fslobby.cpp
+===================================================================
+--- src/FedSrv/fslobby.cpp	(revision 999)
++++ src/FedSrv/fslobby.cpp	(working copy)
+@@ -8,7 +8,10 @@
+   Copyright 1986-2000 Microsoft Corporation, All Rights Reserved
+  *-----------------------------------------------------------------------*/
+ #include "pch.h"
++#include "FedSrv.H"
+ 
++
++
+ HRESULT FedSrvLobbySite::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm)
+ {
+   HRESULT hr = S_OK;
+@@ -179,6 +182,38 @@
+       // TODO: consider firing out an event message
+       PostQuitMessage(-1);
+     }
++
++	// BT - 12/21/2010 - The lobby server will relay the rank details back to the game server.
++	case FM_LS_PLAYER_RANK:
++	{
++		CQLogonStats * pquery = new CQLogonStats(GotLogonDetails);
++		CQLogonStatsData * pqd = pquery->GetData();
++
++		CASTPFM(pfmPlayerRank, LS, PLAYER_RANK, pfm);
++
++		lstrcpy(pqd->szCDKey, FM_VAR_REF(pfmPlayerRank, szCDKey));
++		lstrcpy(pqd->szCharacterName, FM_VAR_REF(pfmPlayerRank, szCharacterName));
++		lstrcpy(pqd->szPassword, FM_VAR_REF(pfmPlayerRank, szPassword));
++		lstrcpy(pqd->szReason, FM_VAR_REF(pfmPlayerRank, szReason));
++
++		pqd->characterID = pfmPlayerRank->characterID;
++		pqd->fCanCheat = pfmPlayerRank->fCanCheat;
++		pqd->fRetry = pfmPlayerRank->fRetry;
++		pqd->dwCookie = pfmPlayerRank->dwCookie;
++		pqd->fValid = pfmPlayerRank->fValid;
++		pqd->dwConnectionID = pfmPlayerRank->dwConnectionID;
++
++		pqd->rank = pfmPlayerRank->rank;
++		pqd->sigma = pfmPlayerRank->sigma;
++		pqd->mu = pfmPlayerRank->mu;
++		pqd->commandRank = pfmPlayerRank->commandRank;
++		pqd->commandSigma = pfmPlayerRank->commandSigma;
++		pqd->commandMu = pfmPlayerRank->commandMu;
++
++		PostThreadMessage(g.idReceiveThread, wm_sql_querydone, (WPARAM) NULL, (LPARAM) pquery);
++		break;
++	}
++
+     break;
+   }
+ 
+Index: src/FedSrv/fsmission.cpp
+===================================================================
+--- src/FedSrv/fsmission.cpp	(revision 999)
++++ src/FedSrv/fsmission.cpp	(working copy)
+@@ -414,9 +414,17 @@
+   {
+     assert(GetCookie()); // we can't be sending messages w/ cookies unless we have a real cookie
+ 
++	 // BT - 9/11/2010 - Supports authentication check of the CD Key.
++	char szAddress[16];
++	g.fm.GetIPAddress(*pfsPlayer->GetConnection(), szAddress);
++
+     BEGIN_PFM_CREATE(g.fmLobby, pfmPlayerJoined, S, PLAYER_JOINED)
+       FM_VAR_PARM(pfsPlayer->GetName(), CB_ZTS)
+       FM_VAR_PARM(pfsPlayer->GetCDKey(), CB_ZTS)
++
++	  // BT - 9/11/2010 - Supports authentication check of the CD Key.
++	  FM_VAR_PARM(szAddress, CB_ZTS)
++
+     END_PFM_CREATE
+     pfmPlayerJoined->dwMissionCookie = GetCookie();
+     g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
+@@ -5031,6 +5039,10 @@
+             pslNext = psl->next();
+             IshipIGC*   pship = psl->data();
+ 
++			// BT - 2/4/2012 - Fixing clint's server crash bug: Game with one player, set to 1 life, eject pods off, launch scout, #resign causes server crash.
++			if(pship == NULL)
++				break;
++
+             if (pship->GetBaseHullType())
+             {
+                 {
+Index: src/FedSrv/srvqueries.h
+===================================================================
+--- src/FedSrv/srvqueries.h	(revision 999)
++++ src/FedSrv/srvqueries.h	(working copy)
+@@ -44,6 +44,14 @@
+   short   cWins;
+   short   cLosses;
+ 
++  // BT - 12/21/2010 - CSS integration
++  double	sigma;
++  double	mu;
++  RankID	commandRank;
++  double	commandSigma;
++  double	commandMu;
++
++
+   BEGIN_COLUMN_MAP(CQLogonStatsData)
+     COLUMN_ENTRY_TYPE(1,  DBTYPE_I2, civID)
+     COLUMN_ENTRY_TYPE(2,  DBTYPE_I2, rank)
+Index: src/Inc/regkey.h
+===================================================================
+--- src/Inc/regkey.h	(revision 999)
++++ src/Inc/regkey.h	(working copy)
+@@ -3,7 +3,7 @@
+ #ifdef  _ALLEGIANCE_DEV_
+ #define ALLEGIANCE_REGISTRY_KEY_ROOT   "Software\\Microsoft\\Microsoft Games\\Allegiance\\Dev"
+ #else
+-#define ALLEGIANCE_REGISTRY_KEY_ROOT   "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.1"
++#define ALLEGIANCE_REGISTRY_KEY_ROOT   "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.2"
+ #endif
+ 
+ // KGJV - added lobby & club
+@@ -11,7 +11,7 @@
+   const char c_szSvcName[] = "AllSrv";
+   #define HKLM_FedSrv        "SYSTEM\\CurrentControlSet\\Services\\AllSrv"
+   #define HKLM_AllSrvUI      ALLEGIANCE_REGISTRY_KEY_ROOT "\\Server"
+-  #define HKLM_AllLobby		 "SYSTEM\\CurrentControlSet\\Services\\AllLobby"
++  #define HKLM_AllLobby		 ALLEGIANCE_REGISTRY_KEY_ROOT "\\AllLobby" //"SYSTEM\\CurrentControlSet\\Services\\AllLobby"
+   #define HKLM_AllClub		 ALLEGIANCE_REGISTRY_KEY_ROOT "\\AllClub"
+ //#define HKLM_AllClub       "SYSTEM\\CurrentControlSet\\Services\\AllClub"
+ #else // !defined(ALLSRV_STANDALONE)
+Index: src/Inc/SlmVer.h
+===================================================================
+--- src/Inc/SlmVer.h	(revision 999)
++++ src/Inc/SlmVer.h	(working copy)
+@@ -2,6 +2,11 @@
+ #define rmj		1
+ #define rmm		5		// Imago (R#)
+ #define rel     0       // mmf added to designate release number for a given build
+-#define rup		111321  // mmf make sure this has 6 digits otherwise version number conversion for esc display may fail
++#define rup		121311  // mmf make sure this has 6 digits otherwise version number conversion for esc display may fail,
++						// rup is specified in octal, so for instance 11/9/2010 (US format)
++						// Year: 2010 - use last two digits: 10, convert to octal = 12.
++						// Month: 11 - convert to octal = 13
++						// Day: 9 - convert to octal = 11
++						// Actual rup value = 121311.
+ #define szVerName	""
+ #define szVerUser	"CURTC3"
+Index: src/lobby/client.cpp
+===================================================================
+--- src/lobby/client.cpp	(revision 999)
++++ src/lobby/client.cpp	(working copy)
+@@ -21,7 +21,7 @@
+ //appweb
+ static MprMutex* mutex = new MprMutex();
+ 
+-void encodeURL( char * url,char * token) // url = output, token gets append to url
++void encodeURL( char * url, char * token) // url = output, token gets append to url
+ {
+     // wlp - we will do brute force URL encoding - it's normal alphaNumeric or it's URL encoded
+     // we will URL encode everything that is in data areas
+@@ -66,78 +66,39 @@
+   return dwResult;
+ }
+ 
+-static void doASGS(void* data, MprThread *threadp) {
++// BT / Orion - 9/11/2010 - Performing validation with new method on LobbyApp to share auth logic.
++static void doAuthentication(void* data, MprThread *threadp) {
+ 	CSQLQuery * pQuery = (CSQLQuery *)data;  //use the AZ legacy data & callback
+ 	CQLobbyLogon * pls = (CQLobbyLogon *)data;
+ 	CQLobbyLogonData * pqd = pls->GetData();
+ 	
+ 	FedMessaging & fm = g_pLobbyApp->GetFMClients();
+ 	CFMConnection * pcnxn = fm.GetConnectionFromId(pqd->dwConnectionID);
+-	
+-	int contentLen = 0;
+-    char *content;
+-    char szResponse[MAX_PATH];
+-	char szURL[MPR_HTTP_MAX_URL];
+-    Strcpy(szURL,"http://asgs.alleg.net/asgs/services.asmx/AuthenticateTicket?Callsign="); 
+-	
+-	// the player callsign has to be urlencoded, because it may contain '+', '?', etc.
+-	char callsign[128];
+-	encodeURL(callsign, pqd->szCharacterName);
+-	Strcat(szURL, callsign);
+-	
+-	// add the IP to the url
+-    char szAddress[16];
++
++	char szAddress[16];
++	Strcpy(szAddress, "");
+ 	fm.GetIPAddress(*pcnxn,szAddress);
+-	Strcat(szURL,"&IP=");
+-	Strcat(szURL,szAddress);
+ 
+-	// add the ticket to the url
+-	Strcat(szURL,"&Ticket=");
+-	char escaped[2048];
+-	//maUrlEncode(escaped, sizeof(escaped), pqd->szCDKey, true);  This stopped working after update? Imago 8/15/09
+-    encodeURL(escaped,pqd->szCDKey); //use Radar's function
+-	Strcat(szURL,escaped);
++	int resultMessageLength = 1024;
++	char resultMessage[1024];
++	bool succeeded = g_pLobbyApp->CDKeyIsValid(pqd->szCharacterName, pqd->szCDKey, szAddress, resultMessage, resultMessageLength);
++	
++	printf("doAuthentication(): keycheck for: %s, key: %s, address: %s, result: %s, succeeded: %s\r\n", pqd->szCharacterName, pqd->szCDKey, szAddress, resultMessage, (succeeded == true) ? "true" : "false");
+ 
+-    // First make sure we can write to a socket
+-    MprSocket* socket = new MprSocket();
+-    socket->openClient("asgs.alleg.net",80,0);
+-    int iwrite = socket->_write("GET /\r\n");
+-    delete socket;
++	if(!succeeded)
++	{
++		mutex->lock();
++		pqd->fValid = false;
++		pqd->fRetry = false;
++		pqd->szReason = new char[lstrlen(resultMessage) + 1];
++		Strcpy(pqd->szReason,resultMessage);
++		mutex->unlock();
++	}
+ 
+-    MaClient* client = new MaClient();
+-    client->setTimeout(3000);
+-    client->setRetries(1);
+-    client->setKeepAlive(0);
+-
+-    if (iwrite == 7) { // make sure we wrote 7 bytes
+-        client->getRequest(szURL);
+-        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
+-	        content = client->getResponseContent(&contentLen);
+-    }
+-
+-	if (contentLen > 0) { // there's POSITIVE content, we excpect it a certain way...
+-		ZString strContent = content;
+-		strContent = strContent.RightOf(85);
+-		strContent = strContent.LeftOf("<");
+-		Strcpy(szResponse,(PCC)strContent);
+-
+-		if (strcmp(szResponse,"-1") == 0) {
+-			mutex->lock();
+-			pqd->fValid = false;
+-			pqd->fRetry = false;
+-			char * szReason = "ASGS Authentication Failure.\n\nPlease restart the game using ASGS.";
+-			pqd->szReason = new char[lstrlen(szReason) + 1];
+-			Strcpy(pqd->szReason,szReason);
+-			mutex->unlock();
+-		}
+-	} 
+-
+ 	// tell the main thread we've finished, use the existing thread msg for AZ SQL 
+ 	PostThreadMessage(_Module.dwThreadID, wm_sql_querydone, (WPARAM) NULL, (LPARAM) pQuery);
+-	delete client;
+ }
+ 
+-
+ void QueueMissions(FedMessaging * pfm)
+ {
+     // Send client all the mission infos, in as few packets as possible
+@@ -237,6 +198,10 @@
+   }
+   
+   g_pLobbyApp->GetFMClients().SendMessages(pcnxn, FM_GUARANTEED, FM_FLUSH);
++
++  //Xynth 09/15/10 Close connection, don't rely on client to do it
++  if (!pqd->fValid)  
++	  fm.DeleteConnection(*(pcnxn));
+ }
+ 
+ const int c_cMaxPlayers = GetRegDWORD("MaxPlayersPerServer", 350);
+@@ -250,51 +215,9 @@
+   
+   switch (pfm->fmid)
+   {
+-    // TODO: remove this post-beta.
+-    case FM_C_LOGON_LOBBY_OLD:
+-    {
+-#ifndef NO_MSG_CRC
+-      bool fCRC = g_fLogonCRC;
+-      g_fLogonCRC = true; // assume always yes until we find one via OnBadCRC that is not.
+-#endif      
+-      CASTPFM(pfmLogon, C, LOGON_LOBBY_OLD, pfm);
++	  // Imago removed old FM_C_LOGON_LOBBY_OLD message handler "post-beta" 6/10 
+ 
+-      // no need to authenticate - they're out of sync and need to auto-update
+-
+-
+-      if (g_pAutoUpdate && pfmLogon->crcFileList != g_pAutoUpdate->GetFileListCRC())
+-      {
+-        // they need auto update
+-        BEGIN_PFM_CREATE(*pthis, pfmAutoUpdate, L, AUTO_UPDATE_INFO)
+-          FM_VAR_PARM(g_pAutoUpdate->GetFTPServer(), CB_ZTS)
+-          FM_VAR_PARM(g_pAutoUpdate->GetFTPInitialDir(), CB_ZTS)
+-          FM_VAR_PARM(g_pAutoUpdate->GetFTPAccount(), CB_ZTS)
+-          FM_VAR_PARM(g_pAutoUpdate->GetFTPPassword(), CB_ZTS)
+-        END_PFM_CREATE
+-        pfmAutoUpdate->crcFileList = g_pAutoUpdate->GetFileListCRC();
+-        pfmAutoUpdate->nFileListSize = g_pAutoUpdate->GetFileListSize();
+-      }
+-      else 
+-      {
+-        // tell client that his version is wrong
+-        char * szReason = "Your game's version did not get auto-updated properly.  Please try again later.";
+-        BEGIN_PFM_CREATE(*pthis, pfmLogonNack, L, LOGON_NACK)
+-          FM_VAR_PARM((char *)szReason, CB_ZTS)
+-        END_PFM_CREATE
+-        pfmLogonNack->fRetry = false;
+-      }
+-
+-#ifndef NO_MSG_CRC
+-      // Big hack to communicate w/ old non-crc clients. This is the ONLY time we send them any non-crc'd messages 
+-      // by increasing the announced size of the message, the client will skip past the crc.
+-      if (!fCRC)
+-        *(CB*)(pthis->BuffOut()) += sizeof(int);
+-#endif      
+-      pthis->SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);
+-    }
+-    break;
+-
+-	// Imago was here 6/26/08 7/5/08
++	  // Imago was here 6/26/08 7/5/08
+     case FM_C_LOGON_LOBBY:
+     {
+ 	  CQLobbyLogon * pquery = new CQLobbyLogon(GotLogonInfo);
+@@ -343,19 +266,23 @@
+ 
+       //Imago added NACK for verson back in 8/6/09 
+       if (!fValid) {
+-          BEGIN_PFM_CREATE(*pthis, pfmLogonNack, L, LOGON_NACK)
+-          FM_VAR_PARM(szReason, CB_ZTS)
+-          END_PFM_CREATE
+-          pfmLogonNack->fRetry = false;
+-          g_pLobbyApp->GetFMClients().SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);
+-          break;
++			BEGIN_PFM_CREATE(*pthis, pfmLogonNack, L, LOGON_NACK)
++			FM_VAR_PARM(szReason, CB_ZTS)
++			END_PFM_CREATE
++			pfmLogonNack->fRetry = false;
++			g_pLobbyApp->GetFMClients().SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);          
++
++			//Xynth 9/15/10 Close the connection, don't rely on client to disconnect
++			pthis->DeleteConnection(cnxnFrom);  
++
++			break;
+       }
+ 
+       //Imago - Dogbones's ASGS_ON AllSrv registry entry fiasco... 8/6/09
+-      if (g_pLobbyApp->EnforceASGS()) {
++      if (g_pLobbyApp->EnforceAuthentication()) {
+ 	      char mprthname[9]; 
+ 	      mprSprintf(mprthname, sizeof(mprthname), "%d",pqd->dwConnectionID);
+-	      MprThread* threadp = new MprThread(doASGS, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname); 
++	      MprThread* threadp = new MprThread(doAuthentication, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname); 
+ 	      threadp->start(); //this could fail if a player is trying to login /w the same cnxn at the same time? (NYI TrapHack) - Imago 7/22/08
+       } else {
+           BEGIN_PFM_CREATE(*pthis, pfmLogonAck, L, LOGON_ACK)
+@@ -552,6 +479,8 @@
+     }
+     break;
+ 
++	
++
+     default:
+       g_pLobbyApp->GetSite()->LogEvent(EVENTLOG_WARNING_TYPE, LE_UnknownMsgFromPlayer, 
+         pfm->fmid, cnxnFrom.GetName(), cnxnFrom.GetID());  
+Index: src/lobby/client.h
+===================================================================
+--- src/lobby/client.h	(revision 999)
++++ src/lobby/client.h	(working copy)
+@@ -15,6 +15,8 @@
+ // but there's not, since each connection can (for now) actually support more than one game). 
+ // CFLServer is more of a server "game" than a server "connection"
+ 
++
++
+ class CFLClient : public IObject
+ {
+ public:
+@@ -51,5 +53,9 @@
+   DWORD           m_dwID;
+ };
+ 
++
++// BT - 9/11/2010 - Making this usable by other classes.
++void encodeURL( char * url, char * token);
++
+ #endif
+ 
+Index: src/lobby/lobbyapp.cpp
+===================================================================
+--- src/lobby/lobbyapp.cpp	(revision 999)
++++ src/lobby/lobbyapp.cpp	(working copy)
+@@ -11,6 +11,7 @@
+ #include "pch.h"
+ #include <conio.h>
+ #include <zreg.h>
++#include "client.h"
+ 
+ ALLOC_MSG_LIST;
+ 
+@@ -143,7 +144,7 @@
+   m_fProtocol(true),
+   m_cStaticCoreInfo(0),
+   m_vStaticCoreInfo(NULL),
+-  m_dwASGS(0)
++  m_dwAuthentication(0)
+ #ifdef USECLUB
+   ,
+   m_csqlSilentThreads(0),
+@@ -323,12 +324,24 @@
+     //Imago 8/6/09 We can't use any of these other handy registry functions
+     // because we have to be different and read from Allsrv's registry key ;-/
+     HKEY  hk;
+-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, HKLM_FedSrv, 0, "", 
++    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, HKLM_AllLobby, 0, "", 
+       REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hk, NULL) == ERROR_SUCCESS)
+     {
+-        _Module.ReadFromRegistry(hk, false, "ASGS_ON", &m_dwASGS, 0, true);
++        _Module.ReadFromRegistry(hk, false, "AUTH_ON", &m_dwAuthentication, 0, true);
+     }
+     RegCloseKey(hk);
++	
++    //Orion : 2009 - Retrieve url of auth server from registry
++	if (m_dwAuthentication)
++	{
++		HKEY  hk;
++		if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, HKLM_AllLobby, 0, "", 
++		  REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hk, NULL) == ERROR_SUCCESS)
++		{
++			_Module.ReadFromRegistry(hk, true, "AUTH_ADDRESS", m_szAuthenticationLocation, NULL);
++		}
++		RegCloseKey(hk);
++	}
+   }
+ 
+   return hr;
+@@ -552,24 +565,203 @@
+   return bBootedSomeone;
+ }
+ 
+-void CLobbyApp::SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission)
++// BT - 12/21/2010 - CSS - Get all rank details from the lobby web service
++bool CLobbyApp::GetRankForCallsign(const char* szPlayerName, int *rank, double *sigma, double *mu, int *commandRank, double *commandSigma, double *commandMu, char *rankName, int rankNameLen)
+ {
++	char resultMessage[1024];
++	int contentLen = 0; 
++    char *content;
++    char szResponse[MAX_PATH];    
++	char szURL[MPR_HTTP_MAX_URL]; 
++	char szName[c_cbName];
++
++	// the player callsign has to be urlencoded, because it may contain '+', '?', etc.
++	char callsign[128];
++	char playername[128];
++	Strcpy(playername, szPlayerName);
++	strcpy(callsign, "");
++	encodeURL(callsign, playername);
++
++	char* baseUrl = g_pLobbyApp->RetrieveAuthAddress();
++	sprintf(szURL, "%s?Action=GetRank&Callsign=%s", baseUrl, callsign);
++
++	MaUrl maUrl;
++	maUrl.parse(szURL);
++
++	// First make sure we can write to a socket
++    MprSocket* socket = new MprSocket();
++	socket->openClient(maUrl.host, maUrl.port, 0);
++    int iwrite = socket->_write("GET /\r\n");
++    delete socket;
++
++    MaClient* client = new MaClient();
++    client->setTimeout(3000);
++    client->setRetries(1);
++    client->setKeepAlive(0);
++
++	strcpy(resultMessage, "Rank Retrieve Failed.\n\nPlease contact system admin.");
++
++	// make sure we wrote 7 bytes
++    if (iwrite == 7) 
++	{ 
++		debugf("retrieving rank: %s\r\n", szURL);
++
++        client->getRequest(szURL);
++        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
++	        content = client->getResponseContent(&contentLen);
++		else
++		{
++			char msg[1024];
++			sprintf(resultMessage, "Lobby GetRank Service Failed (%i)", client->getResponseCode());
++		}
++    }
++
++	debugf("GetRankForCallsign(): contentLen = %ld, content = %s\r\n", contentLen, content);
++	
++	int resultCode = -1;
++
++	char localRankName[50];
++	if(sscanf(content, "%ld|%ld|%s|%f|%f|%ld|%f|%f", &resultCode, rank, localRankName, sigma, mu, commandRank, commandSigma, commandMu) == EOF)
++		resultCode = -1;
++
++	strncpy(rankName, localRankName, rankNameLen);
++
++	// Delete this only after you are done with the content that came back from client->getResponseContent, or that 
++	// pointer will get fried.
++	delete client;
++
++	if(resultCode == 0)
++		strcpy(resultMessage, "Rank retrieved.");
++
++	debugf(resultMessage);
++
++	return resultCode == 0;
++}
++
++// BT - 9/11/2010 - CD Key check will call back to the lobby service to ensure the authentication token is valid.
++bool CLobbyApp::CDKeyIsValid(const char* szPlayerName, const char* szCDKey, const char* szAddress, char *resultMessage, int resultMessageLength)
++{
++	int contentLen = 0; 
++    char *content;
++    char szResponse[MAX_PATH];    
++	char szURL[MPR_HTTP_MAX_URL]; 
++	char szName[c_cbName];
++
++	//Orion : 2009 - Retrieve base lobby authentication service URL
++	char* baseUrl = g_pLobbyApp->RetrieveAuthAddress();
++
++	Strcpy(szURL, baseUrl);
++ 	
++	Strcat(szURL,"?Callsign=");
++	
++ 	// one thread per connecting player
++ 	Strcpy(szName, szPlayerName);
++
++	
++	// the player callsign has to be urlencoded, because it may contain '+', '?', etc.
++	char callsign[128];
++	char playername[128];
++	Strcpy(playername, szPlayerName);
++	strcpy(callsign, "");
++	encodeURL(callsign, playername);
++	Strcat(szURL, callsign);
++	
++	// add the IP to the url
++	Strcat(szURL,"&IP=");
++	Strcat(szURL,szAddress);
++
++	// add the ticket to the url
++	Strcat(szURL,"&Ticket=");
++
++	char cdkey[2048];
++	char escapedCdKey[2048];
++
++	Strcpy(cdkey, szCDKey);
++	strcpy(escapedCdKey, "");
++    encodeURL(escapedCdKey, cdkey); 
++	Strcat(szURL,escapedCdKey);
++
++	// BT - Get rid of the hardcoded reference to the auth url.
++	MaUrl maUrl;
++	maUrl.parse(szURL);
++
++    // First make sure we can write to a socket
++    MprSocket* socket = new MprSocket();
++	socket->openClient(maUrl.host, maUrl.port, 0); // BT - Get rid of the hardcoded reference to the auth url.
++    int iwrite = socket->_write("GET /\r\n");
++    delete socket;
++
++    MaClient* client = new MaClient();
++    client->setTimeout(3000);
++    client->setRetries(1);
++    client->setKeepAlive(0);
++
++	bool succeeded = false;
++	strcpy(resultMessage, "Authentication Failure.\n\nPlease restart the game using the Authentication System.");
++
++	// make sure we wrote 7 bytes
++    if (iwrite == 7) 
++	{ 
++		debugf("authenticating: %s\r\n", szURL);
++
++        client->getRequest(szURL);
++        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
++	        content = client->getResponseContent(&contentLen);
++		else
++		{
++			char msg[1024];
++			sprintf(resultMessage, "Lobby Verification Service Failed (%i)", client->getResponseCode());
++			
++		}
++    }
++
++	debugf("CDKeyIsValid(): contentLen = %ld, content = %s\r\n", contentLen, content);
++	
++	if (contentLen > 0 && (Strcmp(content, "1") == 0)) { // there's POSITIVE content, we expect it a certain way...
++		succeeded = true;
++	}
++
++	// Delete this only after you are done with the content that came back from client->getResponseContent, or that 
++	// pointer will get fried.
++	delete client;
++
++	if(succeeded == true)
++		strcpy(resultMessage, "Authentication Succeeded.");
++
++	return succeeded;
++}
++
++void CLobbyApp::SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission, const char* szAddress)
++{
++
++	debugf("SetPlayerMission(): Setting player mission for: %s", szPlayerName);
++
+   ZString strPlayerName = szPlayerName;
+   ZString strCDKey = szCDKey;
++  ZString strAddress = szAddress;
+ 
+   // boot any old copies of this player
+ #ifdef USECLUB
+   BootPlayersByName(strPlayerName);
+ #endif
+-  if (EnforceCDKey())
++  //if (EnforceCDKey())
++  if(EnforceAuthentication() == true)
+   {
+-    // make sure the key requested is valid (since we can't guarantee that 
+-    // they reported the correct value to the server).
+-/* // we don't have any "instant" way to validate keys, and it's not worth it (now) to go back to db
+-    if (!CDKeyIsValid(szCDKey))
++	  // BT - 9/11/2010 - Readding CD Key Auth on player join to the Allegiance server.
++	int resultMessageLength = 1024;
++	char resultMessage[1024];
++
++	debugf("SetPlayerMission(): checking valid key for: %s, cdKey: %s, IP: %s\r\n", szPlayerName, szCDKey, szAddress);
++
++	bool cdKeyIsValid = CDKeyIsValid(szPlayerName, szCDKey, szAddress, resultMessage, resultMessageLength);
++
++	debugf("SetPlayerMission(): keycheck for: %s, key: %s, address: %s, result: %s, succeeded: %s\r\n", szPlayerName, szCDKey, szAddress, resultMessage, (cdKeyIsValid == true) ? "true" : "false");
++
++    if (cdKeyIsValid == false)
+     {
+       BEGIN_PFM_CREATE(m_fmServers, pfmRemovePlayer, L, REMOVE_PLAYER)
+         FM_VAR_PARM(szPlayerName, CB_ZTS)
++		FM_VAR_PARM(resultMessage, CB_ZTS)
+       END_PFM_CREATE
+       pfmRemovePlayer->dwMissionCookie = pMission->GetCookie();
+       pfmRemovePlayer->reason = RPR_duplicateCDKey;    
+@@ -578,21 +770,22 @@
+       GetSite()->LogEvent(EVENTLOG_WARNING_TYPE, LE_BadCDKey, szCDKey,
+           pMission->GetServer()->GetConnection()->GetName(), szPlayerName);
+     }
+-    else 
+-*/
+-    ZString strOldPlayer;
++    else // BT - 9/11/2010 - End.
++	{
++		ZString strOldPlayer;
+ 
+-    if (BootPlayersByCDKey(strCDKey, szPlayerName, strOldPlayer))
+-    {
+-      BEGIN_PFM_CREATE(m_fmServers, pfmRemovePlayer, L, REMOVE_PLAYER)
+-        FM_VAR_PARM(szPlayerName, CB_ZTS)
+-        FM_VAR_PARM((PCC)strOldPlayer, CB_ZTS)
+-      END_PFM_CREATE
+-      pfmRemovePlayer->dwMissionCookie = pMission->GetCookie();
+-      pfmRemovePlayer->reason = RPR_duplicateCDKey;    
+-      m_fmServers.SendMessages(pMission->GetServer()->GetConnection(), 
+-        FM_GUARANTEED, FM_FLUSH);
+-    }
++		if (BootPlayersByCDKey(strCDKey, szPlayerName, strOldPlayer))
++		{
++		  BEGIN_PFM_CREATE(m_fmServers, pfmRemovePlayer, L, REMOVE_PLAYER)
++			FM_VAR_PARM(szPlayerName, CB_ZTS)
++			FM_VAR_PARM((PCC)strOldPlayer, CB_ZTS)
++		  END_PFM_CREATE
++		  pfmRemovePlayer->dwMissionCookie = pMission->GetCookie();
++		  pfmRemovePlayer->reason = RPR_duplicateCDKey;    
++		  m_fmServers.SendMessages(pMission->GetServer()->GetConnection(), 
++			FM_GUARANTEED, FM_FLUSH);
++		}
++	}
+   }
+ 
+   // create a new player by creating entries in the maps
+@@ -711,6 +904,7 @@
+     return NULL;
+ }
+ 
++
+ bool CLobbyApp::StringCmpLess::operator () (const ZString& str1, const ZString& str2) const
+ { 
+   // comparing lengths first is faster than a strcmp and still creates a strong ordering
+Index: src/lobby/lobbyapp.h
+===================================================================
+--- src/lobby/lobbyapp.h	(revision 999)
++++ src/lobby/lobbyapp.h	(working copy)
+@@ -131,17 +131,28 @@
+   }
+ 
+   //Imago added 8/6/09
+-  bool EnforceASGS()
++  //Orion : 2009 - Made more generic
++  bool EnforceAuthentication()
+   {
+-      return (m_dwASGS) ? true : false;
++      return (m_dwAuthentication) ? true : false;
+   }
+ 
++  char* RetrieveAuthAddress()
++  {
++	  return m_szAuthenticationLocation;
++  }
++
+   // -KGJV: added
+   bool IsFreeLobby()
+   {
+ 	  return m_fFreeLobby;
+   }
+-  void SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission);
++
++  // BT - 12/21/2010 - CSS integration
++  bool CLobbyApp::GetRankForCallsign(const char* szPlayerName, int *rank, double *sigma, double *mu, int *commandRank, double *commandSigma, double *commandMu, char *rankName, int rankNameLen);
++  bool CDKeyIsValid(const char* szPlayerName, const char* szCDKey, const char* szAddress, char *resultMessage, int resultMessageLength);
++
++  void SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission, const char* szAddress);
+   void RemovePlayerFromMission(const char* szPlayerName, CFLMission* pMission);
+   void RemoveAllPlayersFromMission(CFLMission* pMission);
+   void RemoveAllPlayersFromServer(CFLServer* pServer);
+@@ -240,7 +251,8 @@
+   bool              m_fFreeLobby;
+   bool              m_fCheckCDKey;
+   char              m_szToken[24]; // sizeof(_ZONETICKET_TOKEN.szToken)
+-  DWORD             m_dwASGS;
++  DWORD             m_dwAuthentication;
++  char				m_szAuthenticationLocation[261];
+ 
+   // Player list stuff
+   typedef std::multimap<ZString, PlayerLocInfo, StringCmpLess> PlayerByCDKey;
+Index: src/lobby/messagesls.h
+===================================================================
+--- src/lobby/messagesls.h	(revision 999)
++++ src/lobby/messagesls.h	(working copy)
+@@ -14,7 +14,8 @@
+ #include "MessageCore.h"
+ 
+ // Imago updated for R5 8/6/09
+-#define LOBBYVER_LS 9 // If you change this file, increment this
++// BT updated to 10 for CSS integration 12/21/2010
++#define LOBBYVER_LS 10 // If you change this file, increment this
+ 
+ 
+ /*
+@@ -81,6 +82,7 @@
+ DEFINE_FEDMSG(S, PLAYER_JOINED, 209) // a new player has joined - tell the lobby.
+   FM_VAR_ITEM(szCharacterName); 
+   FM_VAR_ITEM(szCDKey); // Scrambled using CharacterName
++  FM_VAR_ITEM(szAddress);
+   DWORD dwMissionCookie;
+ END_FEDMSG
+ 
+@@ -110,5 +112,30 @@
+   FM_VAR_ITEM(Reason);
+ END_FEDMSG
+ 
++// BT - 12/21/2010 - CSS Integration for player ranks. 
++DEFINE_FEDMSG(LS, PLAYER_RANK, 214)
++  // These items are pass thru.
++  FM_VAR_ITEM(szCharacterName); 
++  FM_VAR_ITEM(szReason);     
++  FM_VAR_ITEM(szPassword);
++  FM_VAR_ITEM(szCDKey);
++  FM_VAR_ITEM(szRankName); // Returned from the server.
++  int characterID;
++  bool fCanCheat;
++  bool fRetry;
++  DWORD dwCookie;
++  bool fValid;
++  DWORD dwConnectionID;
++
++  // These items will also be returned from the lobby server.
++  int rank;
++  double sigma;
++  double mu;
++  int commandRank;
++  double commandSigma;
++  double commandMu;
++
++END_FEDMSG
++
+ #endif // _MESSAGES_LS_H_
+ 
+Index: src/lobby/server.cpp
+===================================================================
+--- src/lobby/server.cpp	(revision 999)
++++ src/lobby/server.cpp	(working copy)
+@@ -10,6 +10,8 @@
+ 
+ #include "pch.h"
+ #include <string.h> // mmf added for strncmp used below
++#include "client.h" // BT - 9/11/2010 - Included to use URL functions.
++#include <regex> // BT - 1/27/2012 - using regex to parse rank from callsign when auth is turned off.
+ 
+ const DWORD        CFLServer::c_dwID        = 19680815;
+ const CFLMission * CFLServer::c_AllMissions = (CFLMission*) -1;
+@@ -200,6 +202,7 @@
+       CFLMission * pMission = CFLMission::FromCookie(pfmPlayerJoined->dwMissionCookie);
+       const char* szCharacterName = FM_VAR_REF(pfmPlayerJoined, szCharacterName);
+       const char* szCDKey = FM_VAR_REF(pfmPlayerJoined, szCDKey);
++	  const char* szAddress = FM_VAR_REF(pfmPlayerJoined, szAddress);
+ 
+       if (NULL == szCharacterName || '\0' != szCharacterName[pfmPlayerJoined->cbszCharacterName-1])
+           /* || NULL == szCDKey || '\0' != szCDKey[pfmPlayerJoined->cbszCDKey-1]  
+@@ -226,7 +229,7 @@
+           szCDKey = szUnencryptedCDKey;
+         }
+ 
+-        g_pLobbyApp->SetPlayerMission(szCharacterName, szCDKey, pMission);
++        g_pLobbyApp->SetPlayerMission(szCharacterName, szCDKey, pMission, szAddress);
+       }
+     }
+     break;
+@@ -257,6 +260,94 @@
+       break;
+     }      
+ 
++	// BT - 12/21/2010 - CSS integration
++	case FM_LS_PLAYER_RANK:
++	{
++		CASTPFM(pfmPlayerRankRequest, LS, PLAYER_RANK, pfm);
++
++		const char* szCharacterName = FM_VAR_REF(pfmPlayerRankRequest, szCharacterName);
++		const char* szReason = FM_VAR_REF(pfmPlayerRankRequest, szReason);
++		const char* szPassword = FM_VAR_REF(pfmPlayerRankRequest, szPassword);
++		const char* szCDKey = FM_VAR_REF(pfmPlayerRankRequest, szCDKey);
++
++		char szRankName[50];
++		int rankNameLen = sizeof(szRankName);
++		int rank = 0;
++		double sigma = 0;
++		double mu = 0;
++		int commandRank = 0;
++		double commandSigma = 0;
++		double commandMu = 0;
++		bool rankRetrieved = false;
++
++		if(g_pLobbyApp->EnforceAuthentication() == true)
++		{
++			rankRetrieved = g_pLobbyApp->GetRankForCallsign(
++				szCharacterName, 
++				&rank,
++				&sigma,
++				&mu,
++				&commandRank, 
++				&commandSigma,
++				&commandMu,
++				szRankName,
++				rankNameLen);
++		}
++		else
++		{
++			// BT - 1/27/2012 - Enables lobby to return ranks when ACSS is disabled using old callsign(rank) format.
++			rankRetrieved = true;
++
++			std::tr1::regex rgx("(\\W+)?((?:\\w|@)+)(\\((\\d+)\\))?");
++			std::tr1::smatch result;
++			std::string charName(szCharacterName);
++
++			if(std::tr1::regex_search(charName, result, rgx) == true)
++			{
++				if(result.size() > 2)
++					sprintf((char *) szCharacterName, "%s%s", result[1].str().c_str(), result[2].str().c_str());
++				
++				if(result.size() > 4)
++				{
++					char rankString[50];
++					sprintf(rankString, "%s", result[4].str().c_str());
++					rank = atoi(rankString);
++				}
++			}
++		}
++
++		BEGIN_PFM_CREATE(*pthis, pfmPlayerRankResponse, LS, PLAYER_RANK)
++			FM_VAR_PARM(PCC(szCharacterName), CB_ZTS) 
++			FM_VAR_PARM(PCC(szReason), CB_ZTS) 
++			FM_VAR_PARM(PCC(szPassword), CB_ZTS) 
++			FM_VAR_PARM(PCC(szCDKey), CB_ZTS) 
++			FM_VAR_PARM(PCC(szRankName), CB_ZTS) 
++		END_PFM_CREATE
++
++		pfmPlayerRankResponse->characterID = pfmPlayerRankRequest->characterID;
++		pfmPlayerRankResponse->fCanCheat = pfmPlayerRankRequest->fCanCheat;
++		pfmPlayerRankResponse->fRetry = pfmPlayerRankRequest->fRetry;
++		pfmPlayerRankResponse->dwCookie = pfmPlayerRankRequest->dwCookie;
++		pfmPlayerRankResponse->fValid = pfmPlayerRankRequest->fValid;
++		pfmPlayerRankResponse->dwConnectionID = pfmPlayerRankRequest->dwConnectionID;
++		pfmPlayerRankResponse->rank = rank;
++		pfmPlayerRankResponse->sigma = sigma;
++		pfmPlayerRankResponse->mu = mu;
++		pfmPlayerRankResponse->commandRank = commandRank;
++		pfmPlayerRankResponse->commandSigma = commandSigma;
++		pfmPlayerRankResponse->commandMu = commandMu;
++
++		// Set the rank to be invalid to play on any server if there was any error retrieving the rank.
++		if(rankRetrieved == false)
++			pfmPlayerRankResponse->rank = -2;
++		
++		debugf("Client: %s from <%s> at time %u. Rank: %ld\n", g_rgszMsgNames[pfm->fmid], cnxnFrom.GetName(), Time::Now(), pfmPlayerRankResponse->rank);
++
++		pthis->SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);
++
++		break;
++	}
++
+     default:
+       ZError("unknown message\n");
+   }
+Index: src/WinTrek/trekapp.cpp
+===================================================================
+--- src/WinTrek/trekapp.cpp	(revision 999)
++++ src/WinTrek/trekapp.cpp	(working copy)
+@@ -34,6 +34,11 @@
+ //#endif
+ // wlp 2006 - added askforcallsign - don't ask if passed in on commandline
+ bool g_bAskForCallSign = true ; // wlp 2006
++
++
++
++extern bool g_bForceAuthentication = false; //Orion 2009
++
+ //////////////////////////////////////////////////////////////////////////////
+ //
+ // Trek Application Implementation
+@@ -267,9 +272,46 @@
+ }
+ 
+ 
++ZString ReadAuthPipe()
++{
++	const int LENGTH = 64;
++	HANDLE hWrite;
++	DWORD nDataLength;
++	DWORD nWritten;
++	DWORD *nRead;
++	char buffer[LENGTH];
++	char memoryLocation[LENGTH];
+ 
++	buffer[0] = '\0';
++
++	sprintf(memoryLocation, "%ld", &buffer);
++	nDataLength = strlen(memoryLocation) + 1;
++
++	debugf("sending memory location: %s\r\n", memoryLocation);
++
++	hWrite = CreateFile(_T("\\\\.\\pipe\\allegqueue"), 
++		FILE_GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
++
++	if(WriteFile(hWrite, memoryLocation, nDataLength, &nWritten, NULL) == false || nDataLength != nWritten)
++		debugf("Couldn't write memory address to named pipe for key relay.\r\n");
++
++	CloseHandle(hWrite);
++
++	for(int i = 0; i < 100 && strlen(buffer) == 0; i++)
++		Sleep(100);
++
++	if(strlen(buffer) == 0)
++		debugf("Remote process didn't deliver key to memory location within 10 seconds.\r\n"); 
++	
++	debugf("received key length: %ld, %s\r\n", strlen(buffer), buffer);
++
++	return ZString(buffer);
++};
++
++
+ class TrekAppImpl : public EffectApp {
+ public:
++
+     TrekAppImpl()
+     {
+         AddRef();
+@@ -550,6 +592,9 @@
+         bool bPrimary         = false;
+         bool bSecondary       = false;
+ 		bool bStartFullscreen = true;
++
++		g_bForceAuthentication = false; // Orion - 2009 : CSS
++
+         ZString strMap;
+ 		ZString strAdapter; int iUseAdapter = 0;
+ 
+@@ -622,8 +667,10 @@
+                 // wlp 2006 - added debug option to turn on debug output
+ 				} else if (str == "debug") {
+                     g_outputdebugstring  = true;           //wlp allow debug outputs
+-  				} else if (str.Left(10) == "authtoken=") { // wlp - 2006, added new ASGS tickettoken
+-                    trekClient.SetCDKey(str.RightOf(10)) ; // Use CdKey for ASGS storage
++				} else if (str == "authenticated") {
++					g_bForceAuthentication = true; //Orion - 2009 : Added new CSS Authentication; disabled ASGS
++  				//} else if (str.Left(10) == "authtoken=") { // wlp - 2006, added new ASGS tickettoken
++				//	trekClient.SetCDKey(str.RightOf(10)) ; // Use CdKey for ASGS storage
+                 } else if (str.Left(9) == "callsign=") { // wlp - 2006, added new ASGS token
+                     trekClient.SaveCharacterName(str.RightOf(9)) ; // Use CdKey for ASGS callsign storage
+                     g_bAskForCallSign = false ; // wlp callsign was entered on commandline
+@@ -640,8 +687,15 @@
+             }
+             else // wlp 2006 - adapted this string featture to add ASGS Ticket to cdKey field
+             if (token.IsString(str)){} ;
+-            }
++		}
+ 
++		//Orion - 2009 : If ForceAuthentication is true, check the alleg pipe for the auth token
++		if (true) //g_bForceAuthentication)
++		{
++			trekClient.SetCDKey(ReadAuthPipe());
++		}
++
++
+         // 
+         // Check for other running copies of the app
+         //
+@@ -674,7 +728,7 @@
+     
+                 return S_FALSE;
+             }
+-        }
++		}
+ 
+         //
+         // Create the window
+Index: src/WinTrek/trekigc.cpp
+===================================================================
+--- src/WinTrek/trekigc.cpp	(revision 999)
++++ src/WinTrek/trekigc.cpp	(working copy)
+@@ -4533,6 +4533,8 @@
+ 
+ void WinTrekClient::SetCDKey(const ZString& strCDKey)
+ {
++	debugf("SetCDKey() strCDKey = %s\r\n", (const unsigned char*)(PCC) strCDKey);
++
+     HKEY hKey;
+     // wlp 2006 - Cdkey is the ASGS Ticket Now - we don't want to save it
+     //
+Index: src/WinTrek/WinTrek.cpp
+===================================================================
+--- src/WinTrek/WinTrek.cpp	(revision 999)
++++ src/WinTrek/WinTrek.cpp	(working copy)
+@@ -3930,9 +3930,15 @@
+ 			dDD = dVer.Right(2);
+ 			dMM = dVer.Middle(2,2);
+ 			dYY = dVer.Middle(0,2);
+-			YY = atoi(dYY); 	YY = (YY/10)*8+(YY%10);
+-			MM = atoi(dMM); 	MM = (MM/10)*8+(MM%10);
+-			DD = atoi(dDD); 	DD = (DD/10)*8+(DD%10);
++
++			YY = atoi(dYY); 	
++			YY = (YY/10)*8+(YY%10);
++			
++			MM = atoi(dMM); 	
++			MM = (MM/10)*8+(MM%10);
++			
++			DD = atoi(dDD); 	
++			DD = (DD/10)*8+(DD%10);
+ 		}
+ 
+ 		// TE: Add version menu, mmf changed format, zero pad YY, that will last us 3 more years and saves an if
+Index: src/zlib/base.cpp
+===================================================================
+--- src/zlib/base.cpp	(revision 999)
++++ src/zlib/base.cpp	(working copy)
+@@ -44,8 +44,37 @@
+ ZFile::ZFile(const PathString& strPath, DWORD how) : 
+     m_p(NULL)
+ {
+-    OFSTRUCT rob;
+-    m_handle = (HANDLE)OpenFile(strPath, &rob, how);
++	// BT - CSS - 12/8/2011 - Fixing 128 character path limit.
++	DWORD dwDesiredAccess = GENERIC_READ;
++	DWORD dwShareMode = FILE_SHARE_WRITE;
++	DWORD dwCreationDisposition = OPEN_EXISTING;
++
++	if((how & OF_WRITE) == OF_WRITE)
++		dwDesiredAccess = GENERIC_WRITE;
++
++	if((how & OF_SHARE_DENY_WRITE) == OF_SHARE_DENY_WRITE)
++		dwShareMode = FILE_SHARE_READ;
++
++	if((how & OF_CREATE) == OF_CREATE)
++		dwCreationDisposition = CREATE_ALWAYS;
++
++	// Unicode markers / wide format enables up to 32K path length. 
++	PathString unicodePath("\\\\?\\");
++
++	// If the path is relative, don't use unicode marker.
++	if(strPath.Left(1) == ZString("."))
++		unicodePath = strPath;
++	else
++		unicodePath += strPath;
++
++	WCHAR* pszw = new WCHAR[unicodePath.GetLength() + 1];
++    int result = MultiByteToWideChar(CP_ACP, 0, unicodePath, unicodePath.GetLength(), pszw, unicodePath.GetLength());
++	pszw[result] = NULL;
++
++	m_handle = CreateFileW(pszw, dwDesiredAccess,  dwShareMode, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
++
++	delete pszw;
++	// BT - End fix.
+ }
+ 
+ ZFile::~ZFile()
+Index: src/zlib/FTPSession.cpp
+===================================================================
+--- src/zlib/FTPSession.cpp	(revision 999)
++++ src/zlib/FTPSession.cpp	(working copy)
+@@ -275,6 +275,8 @@
+ 
+     static DWORD WINAPI DownloadThread(LPVOID pThreadParameter)
+     {
++		debugf("DownloadThread(): thread started.\r\n");
++
+         CInternetSessionImpl * pSession = (CInternetSessionImpl *) pThreadParameter;
+ 
+         HANDLE pHandles[] = { pSession->m_eventKillDownload, pSession->m_eventResumeDownload };
+@@ -282,43 +284,61 @@
+         //
+         // Wait for file download to resume or for abort
+         //
++		debugf("DownloadThread(): beginning wait cycle.\r\n");
+         while (WaitForMultipleObjects(2, pHandles, FALSE, INFINITE) != WAIT_OBJECT_0)
+         {
++			debugf("DownloadThread(): Checking for pSession->m_hFile: %ld\r\n", pSession->m_hFile);
++
+             if (pSession->m_hFile == NULL)
+             {
++				debugf("DownloadThread(): pSession->m_hFile was null, calling start next file.\r\n");
++
+                 if (!pSession->StartNextFile())
+                 {
++					debugf("DownloadThread(): pSession->StartNextFile() failed, killing download.\r\n");
+                     SetEvent(pSession->m_eventKillDownload);
+                     break;
+                 }
+             }
+ 
++			debugf("DownloadThread(): checking pSession->m_hFile: %ld\r\n", pSession->m_hFile);
++
+             if (pSession->m_hFile != NULL) 
+             {
++				debugf("DownloadThread(): pSession->m_hFile was not null, downloading file block.\r\n");
++
+ //                DOWNLOAD_RESULT result = pSession->DownloadFileBlock();
+                 DOWNLOAD_RESULT result = DOWNLOAD_ERROR; // default to error, until we know better
+                 __try
+                 {
+                     result = pSession->DownloadFileBlock();
++					debugf("DownloadThread(): pSession->DownloadFileBlock() result: %ld.\r\n", result);
+                 }
+                 __except(1)
+                 {
+                     result = DOWNLOAD_ERROR;
++					debugf("DownloadThread(): pSession->DownloadFileBlock() = threw exception, DOWNLOAD_ERROR.\r\n");
+                 }
+ 
+                 if (result == DOWNLOAD_PROGRESS)
+                 {
++					debugf("DownloadThread(): pSession->DownloadFileBlock() returned: DOWNLOAD_PROGRESS\r\n");
+                     SetEvent(pSession->m_eventProgress);
++					debugf("DownloadThread(): pSession->m_eventProgress - event set.\r\n");
+                 }
+                 else
+                 if (result == FILE_COMPLETED)
+                 {
++					debugf("DownloadThread(): pSession->DownloadFileBlock() returned: FILE_COMPLETED\r\n");
+                     SetEvent(pSession->m_eventFileCompleted);
++					debugf("DownloadThread(): pSession->m_eventFileCompleted - event set.\r\n");
+                 }
+                 else
+                 if (result == DOWNLOAD_ERROR)
+                 {
++					debugf("DownloadThread(): pSession->DownloadFileBlock() returned: DOWNLOAD_ERROR\r\n");
+                     SetEvent(pSession->m_eventKillDownload);
++					debugf("DownloadThread(): pSession->m_eventKillDownload - event set.\r\n");
+                     break;
+                 }
+             }
+Index: src/zlib/zassert.h
+===================================================================
+--- src/zlib/zassert.h	(revision 999)
++++ src/zlib/zassert.h	(working copy)
+@@ -34,6 +34,8 @@
+ extern int g_outputdebugstring; // mmf added to support Radar's -debug command line
+ extern bool g_bOutput;
+ 
++extern bool g_bForceAuthentication;	//Orion - 2009 : The current process must be authenticated
++
+ #ifdef _DEBUG
+     //
+     // These are implemented in Win32app.cpp
+Index: VS2010
+===================================================================
+--- VS2010	(revision 999)
++++ VS2010	(working copy)
+
+Property changes on: VS2010
+___________________________________________________________________
+Added: svn:ignore
+## -0,0 +1,2 ##
++ipch
++Debug
+Index: VS2010/AGC.vcxproj
+===================================================================
+--- VS2010/AGC.vcxproj	(revision 999)
++++ VS2010/AGC.vcxproj	(working copy)
+@@ -703,6 +703,7 @@
+       <Outputs Condition="'$(Configuration)|$(Platform)'=='FZRetail|X64'">%(Outputs)</Outputs>
+       <Outputs Condition="'$(Configuration)|$(Platform)'=='FZRetail-Optimized|X64'">%(Outputs)</Outputs>
+       <Outputs Condition="'$(Configuration)|$(Platform)'=='FZRetail-Instrumented|X64'">%(Outputs)</Outputs>
++      <SubType>Designer</SubType>
+     </CustomBuild>
+   </ItemGroup>
+   <ItemGroup>
+Index: VS2010/Allegiance.sln
+===================================================================
+--- VS2010/Allegiance.sln	(revision 999)
++++ VS2010/Allegiance.sln	(working copy)
+@@ -14,7 +14,6 @@
+ 		..\src\Inc\messagecore.h = ..\src\Inc\messagecore.h
+ 		..\src\Inc\Messages.h = ..\src\Inc\Messages.h
+ 		..\src\Inc\quickchat.h = ..\src\Inc\quickchat.h
+-		..\src\Inc\regkey.h = ..\src\Inc\regkey.h
+ 		..\src\Inc\SlmVer.h = ..\src\Inc\SlmVer.h
+ 	EndProjectSection
+ EndProject
+@@ -146,20 +145,34 @@
+ EndProject
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "effect", "effect.vcxproj", "{4F83287A-FF3C-4333-AD5F-C00B86CF0895}"
+ EndProject
++Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModelerTest", "ModelerTest.vcxproj", "{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}"
++EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|Win32 = Debug|Win32
++		Debug|X64 = Debug|X64
+ 		FZDebug|Win32 = FZDebug|Win32
+ 		FZDebug|X64 = FZDebug|X64
+ 		FZRetail|Win32 = FZRetail|Win32
+ 		FZRetail|X64 = FZRetail|X64
++		FZRetail-Instrumented|Win32 = FZRetail-Instrumented|Win32
++		FZRetail-Instrumented|X64 = FZRetail-Instrumented|X64
++		FZRetail-Optimized|Win32 = FZRetail-Optimized|Win32
++		FZRetail-Optimized|X64 = FZRetail-Optimized|X64
+ 		FZRetail-PGO|Win32 = FZRetail-PGO|Win32
+ 		FZRetail-PGO|X64 = FZRetail-PGO|X64
+ 		FZRetail-PGOInstrument|Win32 = FZRetail-PGOInstrument|Win32
+ 		FZRetail-PGOInstrument|X64 = FZRetail-PGOInstrument|X64
+ 		FZRetail-SSE2|Win32 = FZRetail-SSE2|Win32
+ 		FZRetail-SSE2|X64 = FZRetail-SSE2|X64
++		Release|Win32 = Release|Win32
++		Release|X64 = Release|X64
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Debug|Win32.Build.0 = FZDebug|Win32
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Debug|X64.ActiveCfg = FZDebug|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Debug|X64.Build.0 = FZDebug|X64
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -168,6 +181,14 @@
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail|X64.Build.0 = FZRetail|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -180,6 +201,13 @@
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{21C70CA0-24C5-475B-8C47-6F0226A374B0}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Debug|Win32.Build.0 = FZDebug|Win32
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Debug|X64.ActiveCfg = FZDebug|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Debug|X64.Build.0 = FZDebug|X64
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -188,6 +216,14 @@
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail|X64.Build.0 = FZRetail|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -200,6 +236,13 @@
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{FA223B93-BCFB-48FA-B9DD-DB9DBBC8F314}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Debug|Win32.Build.0 = FZDebug|Win32
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Debug|X64.ActiveCfg = FZDebug|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Debug|X64.Build.0 = FZDebug|X64
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -208,6 +251,14 @@
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail|X64.Build.0 = FZRetail|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -220,6 +271,13 @@
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{3853A2C5-F219-4C7D-841A-9407A7AEAE9D}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Debug|Win32.Build.0 = FZDebug|Win32
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Debug|X64.ActiveCfg = FZDebug|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Debug|X64.Build.0 = FZDebug|X64
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -228,6 +286,14 @@
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail|X64.Build.0 = FZRetail|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -240,6 +306,13 @@
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{F81BB9EE-DD86-415E-87E3-B60732EFD72F}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Debug|Win32.Build.0 = FZDebug|Win32
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Debug|X64.ActiveCfg = FZDebug|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Debug|X64.Build.0 = FZDebug|X64
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -248,6 +321,14 @@
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail|X64.Build.0 = FZRetail|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-PGO|X64.Build.0 = FZRetail-Optimized|X64
+@@ -258,6 +339,13 @@
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{9F998B06-078F-4D01-BE26-0302B4772FE3}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{9F998B06-078F-4D01-BE26-0302B4772FE3}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Debug|Win32.Build.0 = FZDebug|Win32
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Debug|X64.ActiveCfg = FZDebug|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Debug|X64.Build.0 = FZDebug|X64
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -266,6 +354,14 @@
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail|X64.Build.0 = FZRetail|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -278,6 +374,13 @@
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{BF99DCB8-4127-4403-82C9-72190C6ABF5F}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Debug|Win32.Build.0 = FZDebug|Win32
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Debug|X64.ActiveCfg = FZDebug|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Debug|X64.Build.0 = FZDebug|X64
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -286,6 +389,14 @@
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail|X64.Build.0 = FZRetail|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -298,6 +409,13 @@
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{557CA42C-AA39-4C44-A998-0452F8C55851}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{557CA42C-AA39-4C44-A998-0452F8C55851}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Debug|Win32.Build.0 = FZDebug|Win32
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Debug|X64.ActiveCfg = FZDebug|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Debug|X64.Build.0 = FZDebug|X64
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -306,6 +424,14 @@
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail|X64.Build.0 = FZRetail|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -318,6 +444,13 @@
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{1CBF6569-F71C-422A-81DD-8D30A736DB21}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Debug|Win32.Build.0 = FZDebug|Win32
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Debug|X64.ActiveCfg = FZDebug|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Debug|X64.Build.0 = FZDebug|X64
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -326,6 +459,14 @@
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail|X64.Build.0 = FZRetail|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -338,6 +479,13 @@
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{3702DB5A-C966-4133-824F-5958F4BF9BCF}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Debug|Win32.Build.0 = FZDebug|Win32
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Debug|X64.ActiveCfg = FZDebug|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Debug|X64.Build.0 = FZDebug|X64
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -346,6 +494,14 @@
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail|X64.Build.0 = FZRetail|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -358,6 +514,13 @@
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{05EAD557-56B0-4070-83F0-8A2B6FB9C54D}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Debug|Win32.Build.0 = FZDebug|Win32
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Debug|X64.ActiveCfg = FZDebug|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Debug|X64.Build.0 = FZDebug|X64
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -366,6 +529,14 @@
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail|X64.Build.0 = FZRetail|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -378,6 +549,13 @@
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{181139DC-F4E7-446B-B8DD-C195691B34CA}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{181139DC-F4E7-446B-B8DD-C195691B34CA}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Debug|Win32.Build.0 = FZDebug|Win32
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Debug|X64.ActiveCfg = FZDebug|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Debug|X64.Build.0 = FZDebug|X64
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -386,6 +564,14 @@
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail|X64.Build.0 = FZRetail|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-PGO|X64.Build.0 = FZRetail-Optimized|X64
+@@ -396,6 +582,13 @@
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{3A317555-E8A3-494D-BF0D-CE93E40C920B}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Debug|Win32.Build.0 = FZDebug|Win32
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Debug|X64.ActiveCfg = FZDebug|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Debug|X64.Build.0 = FZDebug|X64
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -404,6 +597,14 @@
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail|X64.Build.0 = FZRetail|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -416,6 +617,13 @@
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{A8E7888A-84AC-485E-9FB2-35382C003E0B}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Debug|Win32.Build.0 = FZDebug|Win32
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Debug|X64.ActiveCfg = FZDebug|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Debug|X64.Build.0 = FZDebug|X64
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -424,6 +632,14 @@
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail|X64.Build.0 = FZRetail|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -436,6 +652,13 @@
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{1695996C-F698-4509-BF5C-ADE10ADA67F9}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Debug|Win32.Build.0 = FZDebug|Win32
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Debug|X64.ActiveCfg = FZDebug|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Debug|X64.Build.0 = FZDebug|X64
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -444,6 +667,14 @@
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail|X64.Build.0 = FZRetail|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-PGO|X64.Build.0 = FZRetail-Optimized|X64
+@@ -454,6 +685,13 @@
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Debug|Win32.Build.0 = FZDebug|Win32
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Debug|X64.ActiveCfg = FZDebug|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Debug|X64.Build.0 = FZDebug|X64
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -462,6 +700,14 @@
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail|X64.Build.0 = FZRetail|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -474,6 +720,13 @@
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Debug|Win32.Build.0 = FZDebug|Win32
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Debug|X64.ActiveCfg = FZDebug|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Debug|X64.Build.0 = FZDebug|X64
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -482,6 +735,14 @@
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail|X64.Build.0 = FZRetail|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -494,6 +755,13 @@
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{281F3AC6-FAD1-40F4-B798-F634A6162D39}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Debug|Win32.Build.0 = FZDebug|Win32
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Debug|X64.ActiveCfg = FZDebug|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Debug|X64.Build.0 = FZDebug|X64
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -502,6 +770,14 @@
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail|X64.Build.0 = FZRetail|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -514,6 +790,13 @@
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{D619B179-7FC4-4DB6-9794-1D3C75717D15}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Debug|Win32.Build.0 = FZDebug|Win32
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Debug|X64.ActiveCfg = FZDebug|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Debug|X64.Build.0 = FZDebug|X64
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZDebug|Win32.Build.0 = FZDebug|Win32
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZDebug|X64.ActiveCfg = FZDebug|X64
+@@ -522,6 +805,14 @@
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail|Win32.Build.0 = FZRetail|Win32
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail|X64.ActiveCfg = FZRetail|X64
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail|X64.Build.0 = FZRetail|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-Optimized|Win32
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-PGO|Win32.Build.0 = FZRetail-Optimized|Win32
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-PGO|X64.ActiveCfg = FZRetail-Optimized|X64
+@@ -534,6 +825,42 @@
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
+ 		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{4F83287A-FF3C-4333-AD5F-C00B86CF0895}.Release|X64.Build.0 = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Debug|Win32.ActiveCfg = FZDebug|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Debug|Win32.Build.0 = FZDebug|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Debug|X64.ActiveCfg = FZDebug|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Debug|X64.Build.0 = FZDebug|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZDebug|Win32.ActiveCfg = FZDebug|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZDebug|Win32.Build.0 = FZDebug|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZDebug|X64.ActiveCfg = FZDebug|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZDebug|X64.Build.0 = FZDebug|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail|Win32.ActiveCfg = FZRetail|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail|Win32.Build.0 = FZRetail|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail|X64.ActiveCfg = FZRetail|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail|X64.Build.0 = FZRetail|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Instrumented|Win32.ActiveCfg = FZRetail-Instrumented|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Instrumented|Win32.Build.0 = FZRetail-Instrumented|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Instrumented|X64.ActiveCfg = FZRetail-Instrumented|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Instrumented|X64.Build.0 = FZRetail-Instrumented|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Optimized|Win32.ActiveCfg = FZRetail-Optimized|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Optimized|Win32.Build.0 = FZRetail-Optimized|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Optimized|X64.ActiveCfg = FZRetail-Optimized|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-Optimized|X64.Build.0 = FZRetail-Optimized|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-PGO|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-PGO|X64.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-PGO|X64.Build.0 = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-PGOInstrument|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-PGOInstrument|X64.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-PGOInstrument|X64.Build.0 = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-SSE2|Win32.ActiveCfg = FZRetail-SSE2|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-SSE2|Win32.Build.0 = FZRetail-SSE2|Win32
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-SSE2|X64.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.FZRetail-SSE2|X64.Build.0 = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Release|Win32.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Release|X64.ActiveCfg = FZRetail-SSE2|X64
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190}.Release|X64.Build.0 = FZRetail-SSE2|X64
+ 	EndGlobalSection
+ 	GlobalSection(SolutionProperties) = preSolution
+ 		HideSolutionNode = FALSE
+@@ -545,5 +872,6 @@
+ 		{3A317555-E8A3-494D-BF0D-CE93E40C920B} = {29B93072-BF20-474E-B687-39BCF1292357}
+ 		{F150276A-D7D8-4C24-AA41-170A6F3D4CF9} = {29B93072-BF20-474E-B687-39BCF1292357}
+ 		{97B8370B-16BC-4A2F-A0FE-4BEEF2EAED42} = {29B93072-BF20-474E-B687-39BCF1292357}
++		{C7689DD6-DCEF-4DD7-B5E2-B0D192AE3190} = {29B93072-BF20-474E-B687-39BCF1292357}
+ 	EndGlobalSection
+ EndGlobal
+Index: VS2010/Allegiance.vcxproj.user
+===================================================================
+--- VS2010/Allegiance.vcxproj.user	(revision 999)
++++ VS2010/Allegiance.vcxproj.user	(working copy)
+@@ -6,6 +6,9 @@
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='FZRetail|Win32'">
+     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+-    <LocalDebuggerCommandArguments>-debug -mdllog -windowlog -windowed -nomovies</LocalDebuggerCommandArguments>
++    <LocalDebuggerCommandArguments>-authenticated -callsign=*PorkMuffins@BS(22) -debug -mdllog -windowlog -windowed -nomovies</LocalDebuggerCommandArguments>
+   </PropertyGroup>
++  <PropertyGroup>
++    <ShowAllFiles>false</ShowAllFiles>
++  </PropertyGroup>
+ </Project>
+\ No newline at end of file

@@ -1,0 +1,22 @@
+===========================================================================
+
+First-chance exception at 0x77e4bef7 in AllLobby.exe: 0x000006D9: There are no more endpoints available from the endpoint mapper.
+
+This can occur both in the lobby and in the Allegiance client. The reason is that the Windows Firewall / ICS service is disabled / not running. Re-enabling the service fixes the issue. If you want to disable Windows Firewall, then use the Firewall settings in the control panel to set it to "Off". This will keep the service running, and allow the lobby / Allegiance to start up. 
+
+You can only see this message in the debugger output. 
+
+Symptoms include:
+	Allegiance client receives MOTD, but cannot connect to the lobby. 
+	Lobby takes a long time (10-20 seconds) before displaying the "Ready for clients" message.
+
+Setting a breakpoint for first-chance exceptions yields no further details about where to breakage is, but it appears immediately after dplay8 modules load.
+
+============================================================================
+
+When starting up Client.svc from the CSSServer under IIS, you may get this exception:
+"Could not load type 'System.Security.Authentication.ExtendedProtection.ExtendedProtectionPolicy'" exception error after you install update 982167 or update 982168 
+
+To fix, install the fixit from: http://support.microsoft.com/kb/2262911
+
+============================================================================

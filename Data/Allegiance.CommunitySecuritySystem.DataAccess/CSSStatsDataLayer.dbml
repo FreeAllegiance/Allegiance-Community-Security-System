@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="CSSStats" Class="CSSStatsDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=localhost;Initial Catalog=CSSStats;Persist Security Info=True;User ID=css_server" SettingsObjectName="Allegiance.CommunitySecuritySystem.DataAccess.Properties.Settings" SettingsPropertyName="CSSStatsConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.GameChatLog" Member="GameChatLogs">
+    <Type Name="GameChatLog">
+      <Column Name="GameChatLogIdentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameChatTime" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="GameChatSpeakerName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameChatTargetName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameChatText" Type="System.String" DbType="VarChar(2064) NOT NULL" CanBeNull="false" />
+      <Association Name="Game_GameChatLog" Member="Game" ThisKey="GameID" OtherKey="GameIdentID" Type="Game" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GameEventType" Member="GameEventTypes">
+    <Type Name="GameEventType">
+      <Column Name="GameEventTypeID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameEventID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventCode" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventDesc" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GameServer" Member="GameServers">
+    <Type Name="GameServer">
+      <Column Name="GameServerID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameServerName" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="GameServerOwnerName" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Association Name="GameServer_GameServerIP" Member="GameServerIPs" ThisKey="GameServerID" OtherKey="GameServerID" Type="GameServerIP" />
+      <Association Name="GameServer_Game" Member="Games" ThisKey="GameServerID" OtherKey="GameServer" Type="Game" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GameServerIP" Member="GameServerIPs">
+    <Type Name="GameServerIP">
+      <Column Name="GameServerIpID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameServerID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="IPAddress" Type="System.String" DbType="VarChar(20) NOT NULL" CanBeNull="false" />
+      <Association Name="GameServer_GameServerIP" Member="GameServer" ThisKey="GameServerID" OtherKey="GameServerID" Type="GameServer" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.StatsFaction" Member="StatsFactions">
+    <Type Name="StatsFaction">
+      <Column Name="StatsFactionId" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="WinFactionName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="WinStarbase" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="WinSupremacy" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="WinTactical" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="WinExpansion" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="WinShipyard" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="LossFactionName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="LossStarbase" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="LossSupremacy" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="LossTactical" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="LossExpansion" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="LossShipyard" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GamesPlayed" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="HoursPlayed" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.StatsMetrics" Member="StatsMetrics">
+    <Type Name="StatsMetric">
+      <Column Name="StatsMetricsId" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="TotalGamesLogged" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LastGameProcessed" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="AveragePlayerRank" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="AverageCommandRank" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Game" Member="Games">
+    <Type Name="Game">
+      <Column Name="GameIdentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameServer" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameName" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="GameCore" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameMap" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameSquadGame" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameConquest" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameDeathMatch" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameDeathmatchGoal" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="GameFriendlyFire" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameRevealMap" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="GameDevelopments" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameShipyards" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameDefections" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameInvulStations" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameStatsCount" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameMaxImbalance" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameStartingMoney" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="GameTotalMoney" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="GameResources" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameStartTime" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="GameEndTime" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="Game_GameChatLog" Member="GameChatLogs" ThisKey="GameIdentID" OtherKey="GameID" Type="GameChatLog" />
+      <Association Name="Game_GameTeam" Member="GameTeams" ThisKey="GameIdentID" OtherKey="GameID" Type="GameTeam" />
+      <Association Name="Game_AS_GamePlayerA" Member="AS_GamePlayerAs" ThisKey="GameIdentID" OtherKey="GameID" Type="AS_GamePlayerA" />
+      <Association Name="Game_GameEvent" Member="GameEvents" ThisKey="GameIdentID" OtherKey="GameID" Type="GameEvent" />
+      <Association Name="GameServer_Game" Member="GameServer1" ThisKey="GameServer" OtherKey="GameServerID" Type="GameServer" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GameTeam" Member="GameTeams">
+    <Type Name="GameTeam">
+      <Column Name="GameTeamIdentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameTeamID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamNumber" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamName" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamCommander" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamCommanderLoginID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamFaction" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamStarbase" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamSupremacy" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamTactical" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamExpansion" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamShipyard" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamWinner" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="GameTeam_GameTeamMember" Member="GameTeamMembers" ThisKey="GameTeamIdentID" OtherKey="GameTeamID" Type="GameTeamMember" />
+      <Association Name="Game_GameTeam" Member="Game" ThisKey="GameID" OtherKey="GameIdentID" Type="Game" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.AS_GamePlayerAS" Member="AS_GamePlayerAs">
+    <Type Name="AS_GamePlayerA">
+      <Column Name="GamePlayerASID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="LoginID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="NewMu" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="NewSigma" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="NewCommandMu" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="NewCommandSigma" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="StackRatingChange" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="Defected" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="KillCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="EjectCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DroneKillCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StationKillCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StationCaptureCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="Game_AS_GamePlayerA" Member="Game" ThisKey="GameID" OtherKey="GameIdentID" Type="Game" IsForeignKey="true" DeleteRule="CASCADE" />
+      <Association Name="StatsLeaderboard_AS_GamePlayerA" Member="StatsLeaderboard" ThisKey="LoginID" OtherKey="LoginID" Type="StatsLeaderboard" IsForeignKey="true" DeleteRule="CASCADE" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GameEvent" Member="GameEvents">
+    <Type Name="GameEvent">
+      <Column Name="GameID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="EventID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventTime" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventPerformerID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventPerformerLoginID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventPerformerName" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventTargetID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventTargetLoginID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventTargetName" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventIndirectID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameEventIndirectName" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Association Name="Game_GameEvent" Member="Game" ThisKey="GameID" OtherKey="GameIdentID" Type="Game" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.GameTeamMember" Member="GameTeamMembers">
+    <Type Name="GameTeamMember">
+      <Column Name="GameTeamMemberIdentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="GameTeamID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamMemberCallsign" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamMemberDuration" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameTeamMemberLoginID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Score" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="GameTeam_GameTeamMember" Member="GameTeam" ThisKey="GameTeamID" OtherKey="GameTeamIdentID" Type="GameTeam" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.LossFactor" Member="LossFactors">
+    <Type Name="LossFactor">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="MinLevel" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="MaxLevel" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Factor" Type="System.Int32" DbType="Int" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[Level]" Member="Levels">
+    <Type Name="Level">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="[Level]" Member="Level1" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="MinXP" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="MaxXP" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="ImageUrl" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="Caption" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.WinFactor" Member="WinFactors">
+    <Type Name="WinFactor">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="MinLevel" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="MaxLevel" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Factor" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ExperianceExchange" Member="ExperianceExchanges">
+    <Type Name="ExperianceExchange">
+      <Column Name="ID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LevelDiffMin" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LevelDiffMax" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="HigherWin" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="HigherLoss" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LowerWin" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LowerLoss" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.StatsLeaderboard" Member="StatsLeaderboards">
+    <Type Name="StatsLeaderboard">
+      <Column Name="StatsLeaderboardId" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LoginUsername" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="LoginID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Mu" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="Sigma" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="Rank" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="Wins" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Losses" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Draws" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Defects" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StackRating" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="CommandMu" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="CommandSigma" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="CommandRank" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="CommandWins" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="CommandLosses" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="CommandDraws" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Kills" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Ejects" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="DroneKills" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StationKills" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StationCaptures" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="HoursPlayed" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="DateModified" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="Xp" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PRank" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="StatsLeaderboard_AS_GamePlayerA" Member="AS_GamePlayerAs" ThisKey="LoginID" OtherKey="LoginID" Type="AS_GamePlayerA" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ScoreQueue" Member="ScoreQueues">
+    <Type Name="ScoreQueue">
+      <Column Name="Id" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="LoginId" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="GameGuid" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Score" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="PilotBaseKills" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PilotBaseCaptures" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="WarpsSpotted" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="AsteroidsSpotted" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="MinerKills" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="BuilderKills" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="LayerKills" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="CarrierKills" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="PlayerKills" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="BaseKills" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="BaseCaptures" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="TechsRecovered" Type="System.Double" DbType="Float NOT NULL" CanBeNull="false" />
+      <Column Name="Flags" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Artifacts" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Rescues" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Kills" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Assists" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Deaths" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Ejections" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="CombatRating" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Win" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="Lose" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="CommandWin" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="CommandLose" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="TimePlayed" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="TimeCommanded" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="CommandCredit" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Function Name="dbo.ASGSServiceUpdateASRankings" Method="ASGSServiceUpdateASRankings">
+    <Parameter Name="GameID" Parameter="gameID" Type="System.Int32" DbType="Int" />
+    <Parameter Name="DebugMode" Parameter="debugMode" Type="System.Int32" DbType="Int" />
+    <ElementType Name="ASGSServiceUpdateASRankingsResult">
+      <Column Name="GTM_ID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="LoginID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Callsign" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="Team" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="SecondsPlayed" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="FractionPlayed" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Mu" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Sigma" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DeltaMu" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="DeltaSigma" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="CommandMu" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="CommandSigma" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="StackRating" Type="System.Double" DbType="Float" CanBeNull="true" />
+      <Column Name="Defector" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="GamePlayerKills" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="GameDroneKills" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="GameEjects" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="GameStationKills" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="GameStationCaptures" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Pass" Type="System.Int32" DbType="Int" CanBeNull="true" />
+    </ElementType>
+  </Function>
+</Database>

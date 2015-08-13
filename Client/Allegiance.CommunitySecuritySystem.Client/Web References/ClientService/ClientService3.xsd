@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" />
+  <xs:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess.Enumerations" />
+  <xs:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess" />
+  <xs:element name="GetBlackBoxForUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="loginData" nillable="true" type="q1:LoginData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetBlackBoxForUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="GetBlackBoxForUserResult" nillable="true" type="q2:LoginResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LauncherSignIn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q3:LauncherSignInData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LauncherSignInResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="LauncherSignInResult" nillable="true" type="q4:LauncherSignInResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Login">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q5:LoginData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LoginResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="LoginResult" nillable="true" type="q6:LoginResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckIn">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q7:CheckInData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckInResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="CheckInResult" nillable="true" type="q8:CheckInResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Logout">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q9:AuthenticatedData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="LogoutResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateAlias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q10:LoginData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateAliasResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess.Enumerations" minOccurs="0" name="CreateAliasResult" type="q11:CheckAliasResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckAlias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q12:LoginData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckAliasResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess.Enumerations" minOccurs="0" name="CheckAliasResult" type="q13:CheckAliasResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckLegacyAliasExists">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="callsignWithTags" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckLegacyAliasExistsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="CheckLegacyAliasExistsResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ValidateLegacyCallsignUsage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="callsignWithTags" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ValidateLegacyCallsignUsageResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess.Enumerations" minOccurs="0" name="ValidateLegacyCallsignUsageResult" type="q14:CheckAliasResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsAliasAvailable">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="callsignWithTags" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="IsAliasAvailableResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess.Enumerations" minOccurs="0" name="IsAliasAvailableResult" type="q15:CheckAliasResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetDefaultAlias">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q16:SetDefaultAliasData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetDefaultAliasResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="SetDefaultAliasResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListAliases">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q17:AuthenticatedData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListAliasesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="ListAliasesResult" nillable="true" type="q18:ListAliasesResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCaptcha">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="width" type="xs:int" />
+        <xs:element minOccurs="0" name="height" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetCaptchaResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="GetCaptchaResult" nillable="true" type="q19:CaptchaResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateLogin">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="username" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="password" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="email" nillable="true" type="xs:string" />
+        <xs:element xmlns:q20="http://schemas.microsoft.com/2003/10/Serialization/" minOccurs="0" name="captchaToken" type="q20:guid" />
+        <xs:element minOccurs="0" name="captchaAnswer" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateLoginResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="CreateLoginResult" nillable="true" type="q21:CreateLoginResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckForUpdates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="lobbyId" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckForUpdatesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="CheckForUpdatesResult" nillable="true" type="q22:AutoUpdateResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckAvailableLobbies">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CheckAvailableLobbiesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="CheckAvailableLobbiesResult" nillable="true" type="q23:ArrayOfLobbyResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListMessages">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q24:AuthenticatedData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListMessagesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q25="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="ListMessagesResult" nillable="true" type="q25:ListMessageResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListPolls">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q26:AuthenticatedData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ListPollsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess" minOccurs="0" name="ListPollsResult" nillable="true" type="q27:ArrayOfPoll" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ApplyVote">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" minOccurs="0" name="data" nillable="true" type="q28:PollData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ApplyVoteResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<siteMap xmlns="http://schemas.microsoft.com/AspNet/SiteMap-File-1.0" >
+
+    <siteMapNode url="~/Default.aspx" title="Home"  description="">
+			<siteMapNode url="~/Content/AutoUpdate/Default.aspx" title="Manage Updates"  description="">
+				
+				<siteMapNode url="~/Content/AutoUpdate/Packages.aspx" title="Packages"  description="" >
+					<siteMapNode url="~/Content/AutoUpdate/EditPackage.aspx" title="Edit Package"  description="" reliantOn="Target">
+						<siteMapNode url="~/Content/AutoUpdate/FileManager.aspx" title="File Manager"  description="" reliantOn="Target" />
+					</siteMapNode>
+				</siteMapNode>
+
+				<siteMapNode url="~/Content/AutoUpdate/Publish.aspx" title="Publications"  description="" >
+					<siteMapNode url="~/Content/AutoUpdate/EditPublication.aspx" title="Edit Publication"  description="" />
+					<siteMapNode url="~/Content/AutoUpdate/DownloadOrDeployPublication.aspx" title="Download/Deploy Publication"  description="" />
+				</siteMapNode>
+
+				<siteMapNode url="~/Content/AutoUpdate/Backups.aspx" title="Backups"  description="" >
+					<siteMapNode url="~/Content/AutoUpdate/BackupDetails.aspx" title="Backup Details"  description="" />
+				</siteMapNode>
+				
+			</siteMapNode>
+
+
+			<siteMapNode url="~/Content/Polls/Default.aspx" title="Manage Polls"  description="">
+				<siteMapNode url="~/Content/Polls/EditPoll.aspx" title="Edit Poll"  description="" />
+			</siteMapNode>
+
+			<siteMapNode url="~/CreateUser.aspx" title="Create User" description="" />
+
+			<siteMapNode url="~/ForgotPassword.aspx" title="Forgot Password" description="" />
+			<siteMapNode url="~/ResetPassword.aspx" title="Reset Password" description="" />
+
+			<siteMapNode url="~/Users/Default.aspx" title="Users" description="" reliantOn="searchText">
+				<siteMapNode url="~/Users/EditUser.aspx" title="Edit User" description="" reliantOn="searchText,loginID"/>
+				<siteMapNode url="~/Users/ManageLinks.aspx" title="Links" description="" reliantOn="searchText,loginID">
+					<siteMapNode url="~/Users/LinkToLogin.aspx" title="Link To Login" description="" reliantOn="searchText,loginID"/>
+				</siteMapNode>
+			</siteMapNode>
+
+			<siteMapNode url="~/Enforcer/ServerLogs.aspx" title="Server Logs" description="" reliantOn="searchText">
+				<siteMapNode url="~/Enforcer/GameDetails.aspx" title="Game Details" description="" reliantOn="searchText" />
+			</siteMapNode>
+
+			<siteMapNode url="~/Enforcer/Search.aspx" title="User Search" description="" reliantOn="searchText">
+				<siteMapNode url="~/Enforcer/IPReport.aspx" title="IP Report" description="" reliantOn="searchText" />
+			</siteMapNode>
+
+		</siteMapNode>
+		
+</siteMap>

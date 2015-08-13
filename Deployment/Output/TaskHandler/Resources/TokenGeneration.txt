@@ -1,0 +1,59 @@
+﻿using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Allegiance.CommunitySecuritySystem.BlackboxGenerator.Resources
+{
+	public class TokenGeneration
+    {
+        private static int _seed = -51810617;
+
+        public static string Generate(byte[] hash)
+        {
+            StringBuilder sb  = new StringBuilder();
+            Random rand   = new Random(_seed);
+
+            /***Random Portion********/
+
+			_randomMethod
+
+            /*************************/
+
+            string value   = sb.ToString();
+            byte[] data    = Encoding.UTF8.GetBytes(value);
+            string iv      = GeneratePassword(0xa19c62);
+            PasswordDeriveBytes pdb = new PasswordDeriveBytes(Encoding.UTF8.GetBytes(value), Encoding.UTF8.GetBytes(value));
+
+            using (Rijndael alg = Rijndael.Create())
+            {
+                alg.Key = pdb.GetBytes(32);
+                alg.IV  = pdb.GetBytes(16);
+
+                using (MemoryStream ms = new MemoryStream())
+                using (CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write))
+                {
+                    cs.Write(hash, 0, hash.Length);
+                    cs.Close();
+
+                    data = ms.ToArray();
+                }
+            }
+
+            using (SHA256Managed sha = new SHA256Managed())
+                return BitConverter.ToString(sha.ComputeHash(data));
+        }
+
+        private static string GeneratePassword(int seed)
+        {
+            StringBuilder sb    = new StringBuilder();
+            Random rand         = new Random(seed);
+            int len             = rand.Next(16, 31);
+
+            for (int i = 0; i < len; i++)
+                sb.Append((char)rand.Next(97, 122));
+
+            return sb.ToString();
+        }
+	}
+}

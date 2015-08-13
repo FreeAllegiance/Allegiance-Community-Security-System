@@ -1,0 +1,54 @@
+AutoUpdateFile
+--------------
+Id
+Filename
+ServerPath
+ValidChecksum
+CurrentVersion
+DateCreated
+DateModified
+LobbyId
+IsProtected	
+
+Lobby
+--------------
+Id
+Name
+Host
+BasePath
+IsRestrictive
+IsEnabled
+
+Lobby_Login
+--------------
+LobbyId
+LoginId
+
+
+Algorithm
+--------------
+1. Client Requests access to a Lobby (ID)
+
+2. Server Responds with a list of protected files and their valid hashes, as well as as an index of all required files.
+	<!-- pseudo-hashfile example -->
+	<files>
+		<file>
+			<id>1</id>
+			<name>Allegiance.exe</name>
+			<hash>315535325326523632</hash>
+			<version>0.0.0.1</version>
+			<isprotected>1</isprotected>
+		</file>
+		<file>
+			<id>53</id>
+			<name>Artwork\fig32.mdl</name>
+			<version>0.0.0.1</version>
+			<isprotected>0</isprotected>
+		</file>
+	</files>
+	
+3. Client compare all files stored locally; if local version < current version add to "Update queue" and skip validation.
+if update queue is empty, client will hash all the protected files and compare with the hashes in retrieved hash list. Any invalid hash 
+is added to update queue.
+Check if updatequeue is empty, if not, download each file from : autoupdate.alleg.net/files/lobbyid/fileid, and 
+replace the existing file on the machine.

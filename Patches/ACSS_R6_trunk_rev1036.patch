@@ -1,0 +1,1165 @@
+Index: src/_Utility/Utility.h
+===================================================================
+--- src/_Utility/Utility.h	(revision 1036)
++++ src/_Utility/Utility.h	(working copy)
+@@ -55,7 +55,7 @@
+ const int c_cbDescription   = c_cbDescriptionDB + 1;
+ const int c_cbName          = c_cbNameDB        + 1;
+ const int c_cbLocAbrev      = c_cbLocAbrevDB    + 1;
+-const int c_cbCDKey         = 32 + 1; // TODO: fill in the correct length
++const int c_cbCDKey         = 1024 + 1; // BT - 9/11/2010 - widened to support longer auth tokens.
+ const int c_cbPassportName  = 256 + 1;
+ 
+ class _exposed List_utl
+Index: src/clintlib/clintlib.cpp
+===================================================================
+--- src/clintlib/clintlib.cpp	(revision 1036)
++++ src/clintlib/clintlib.cpp	(working copy)
+@@ -1303,6 +1303,9 @@
+     if (m_strCDKey.IsEmpty())
+         m_strCDKey = ZString(ci.szName).ToUpper();
+ 
++	char szCdKey[2064];
++	strcpy(szCdKey, (PCC)m_strCDKey);
++
+     if (m_fm.IsConnected())
+     {
+         ZSucceeded(hr);
+@@ -1312,8 +1315,9 @@
+             FM_VAR_PARM(ci.szName, CB_ZTS)
+             FM_VAR_PARM(ci.pZoneTicket, ci.cbZoneTicket)
+         // wlp 2006 - this is the ASGS Ticket
+-        //     FM_VAR_PARM((PCC)m_strCDKey, CB_ZTS)            
+-             FM_VAR_PARM("FERAL-1234567890123456", CB_ZTS)            // wlp 2006 - Don't send ASGS token to game server
++        // BT - 9/11/2010 - Sending the token to the server so that the server will also enforce authentication. 
++             FM_VAR_PARM(szCdKey, CB_ZTS)            
++             //FM_VAR_PARM("FERAL-1234567890123456", CB_ZTS)            // wlp 2006 - Don't send ASGS token to game server // BT 9/11/2010 - Changing this to send it. over.
+             FM_VAR_PARM(szPassword, CB_ZTS)
+         END_PFM_CREATE
+         pfmLogon->fedsrvVer = MSGVER;
+Index: src/FedSrv/FedSrv.CPP
+===================================================================
+--- src/FedSrv/FedSrv.CPP	(revision 1036)
++++ src/FedSrv/FedSrv.CPP	(working copy)
+@@ -26,101 +26,12 @@
+ 
+ //appweb -Imago
+ static Mpr *mpr;
++static MprMutex	*mutex;
++
+ #ifdef _DEBUG
+ static MprLogModule *tMod;
+ #endif
+-static MprMutex	*mutex;
+ 
+-static void doASGS(void* data, MprThread *threadp) {
+-	CSQLQuery * pQuery = (CSQLQuery *)data;  //use the AZ legacy data & callback
+-	CQLogonStats * pls = (CQLogonStats *)data;
+-	CQLogonStatsData * pqd = pls->GetData();
+-
+-	int contentLen = 0; char *content; char szResponse[MAX_PATH];
+-	RankID myRank = -2; // -3 wait, -2 wrong rank, -1 callsign does not exist, >=0 valid rank
+-	char szURL[MAX_PATH]; char szName[c_cbName];
+-	Strcpy(szURL,"http://asgs.alleg.net/asgs/services.asmx/GetPlayerRank?Callsign=");
+-
+-	// one thread per connecting player
+-	Strcpy(szName,pqd->szCharacterName);
+-
+-	// ignore "tokens" in player name
+-	ZString strName = szName;
+-	if ((isalnum(szName[0]) == 0) && (strName.Left(1) != "_"))
+-		Strcpy(szName,strName.RightOf(1));
+-
+-	// add the name to the url
+-	Strcat(szURL,szName);
+-
+-	//Imago check only if connected to a lobby - 6/26/09
+-	if (g.fmLobby.IsConnected()) {
+-
+-        // First make sure we can write to a socket
+-        MprSocket* socket = new MprSocket();
+-        socket->openClient("asgs.alleg.net",80,0);
+-        int iwrite = socket->_write("GET /\r\n");
+-        delete socket;
+-
+-        MaClient* client = new MaClient();
+-	    client->setTimeout(3000);
+-	    client->setRetries(1);
+-	    client->setKeepAlive(0);
+-
+-        if (iwrite == 7) { // make sure we wrote 7 bytes
+-	        client->getRequest(szURL);
+-	        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
+-		        content = client->getResponseContent(&contentLen);
+-        }
+-
+-		if (contentLen > 0) { // there's POSITIVE content, we excpect it a certain way...
+-			ZString strContent = content;
+-			strContent = strContent.RightOf(88);
+-			strContent = strContent.LeftOf("<");
+-			Strcpy(szResponse,(PCC)strContent);
+-
+-			// the only explicit error known, Pook?
+-			if (Strcmp(strtok(szResponse,"|"),"0") != 0 ) {
+-					myRank = -1;
+-			} else {
+-					myRank = atoi(strtok(NULL,"|"));
+-			}
+-
+-			// sanity check
+-			if (myRank <= SHRT_MAX && myRank >= SHRT_MIN) {
+-				mutex->lock();
+-				pqd->rank = myRank;
+-				mutex->unlock();
+-			} else { // insanity
+-				mutex->lock();
+-				pqd->rank = -2;
+-				mutex->unlock();
+-			}
+-		} else { // mmf/imago no content failover uses the rank from the playerName(#) or go with 0 (Newbie)
+-			int strLen = strName.GetLength();
+-			int leftParen = strName.ReverseFind('(',0);
+-			if (leftParen>=1) { //rank in the name
+-				char szRank[3];
+-				Strncpy(szRank,(PCC)strName+leftParen+1,(strLen-leftParen)-1);
+-				myRank = atoi(szRank);
+-				if (!((myRank>0) && (myRank<100))) { //more insanity
+-					myRank=-2; // you are the wrong rank for all missions!
+-				}
+-			} else { //no rank in name
+-				myRank = 0;
+-			}
+-			mutex->lock();
+-			pqd->rank = myRank;
+-			mutex->unlock();
+-		}
+-        delete client;
+-	} else { //not connected to a lobby, just set rank to 0 - imago 6/26/09
+-		pqd->rank = 0;
+-	}
+-
+-	// tell the main thread we've finished using the existing thread msg for AZ SQL
+-	PostThreadMessage(g.idReceiveThread, wm_sql_querydone, (WPARAM) NULL, (LPARAM) pQuery);
+-}
+-
+ #if !defined(ALLSRV_STANDALONE)
+ void DoDecrypt(int size, char* pdata)
+ {
+@@ -5572,11 +5483,31 @@
+         pqd->fValid = fValid;
+         pqd->dwConnectionID = cnxnFrom.GetID();
+ 
+-		char mprthname[9];
+-		mprSprintf(mprthname, sizeof(mprthname), "%d",pqd->dwConnectionID);
+-		MprThread* threadp = new MprThread(doASGS, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname);
+-		threadp->start(); //this could fail if a player is trying to login /w the same cnxn at the same time? (NYI TrapHack) - Imago 7/22/08
++		//char mprthname[9];
++		//mprSprintf(mprthname, sizeof(mprthname), "%d",pqd->dwConnectionID);
++		//MprThread* threadp = new MprThread(doASGS, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname);
++		//threadp->start(); //this could fail if a player is trying to login /w the same cnxn at the same time? (NYI TrapHack) - Imago 7/22/08
+ 
++		// BT - 12/21/2010 - Use a message to the lobby server to get the player's rank details instead 
++		// direct calls to the lobby web service.
++		BEGIN_PFM_CREATE(g.fmLobby, pfmPlayerRank, LS, PLAYER_RANK)
++			FM_VAR_PARM(PCC(pqd->szCharacterName), CB_ZTS) 
++			FM_VAR_PARM(PCC(pqd->szReason), CB_ZTS) 
++			FM_VAR_PARM(PCC(pqd->szPassword), CB_ZTS) 
++			FM_VAR_PARM(PCC(pqd->szCDKey), CB_ZTS) 
++		END_PFM_CREATE
++
++		pfmPlayerRank->characterID = pqd->characterID;
++		pfmPlayerRank->fCanCheat = pqd->fCanCheat;
++		pfmPlayerRank->fRetry = pqd->fRetry;
++		pfmPlayerRank->dwCookie = pqd->dwCookie;
++		pfmPlayerRank->fValid = pqd->fValid;
++		pfmPlayerRank->dwConnectionID = pqd->dwConnectionID;
++
++		g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
++
++		// Wait for a PLAYER_RANK message to come back from the lobby.
++
+ #if !defined(ALLSRV_STANDALONE)
+         if (fValid)
+           g.sql.PostQuery(pquery);
+Index: src/FedSrv/FedSrv.H
+===================================================================
+--- src/FedSrv/FedSrv.H	(revision 1036)
++++ src/FedSrv/FedSrv.H	(working copy)
+@@ -382,6 +382,7 @@
+ void ChangeStationOwners(IstationIGC * pstation, CFSMission * pfsMission, IsideIGC* iSideNew);
+ void ExportObj(IbaseIGC * pIGC, ObjectType ot, FMD_S_EXPORT ** ppfmExport);
+ void CheatDPGroups(CFSShip * pfsShip);
++void GotLogonDetails(CQLogonStats * pquery); // needed by fslobby.cpp.
+ 
+ // <NKM> 8-Aug-2004
+ // DX 9 doesn't use callbacks for this
+Index: src/FedSrv/fslobby.cpp
+===================================================================
+--- src/FedSrv/fslobby.cpp	(revision 1036)
++++ src/FedSrv/fslobby.cpp	(working copy)
+@@ -8,7 +8,10 @@
+   Copyright 1986-2000 Microsoft Corporation, All Rights Reserved
+  *-----------------------------------------------------------------------*/
+ #include "pch.h"
++#include "FedSrv.H"
+ 
++
++
+ HRESULT FedSrvLobbySite::OnAppMessage(FedMessaging * pthis, CFMConnection & cnxnFrom, FEDMESSAGE * pfm)
+ {
+   HRESULT hr = S_OK;
+@@ -179,6 +182,38 @@
+       // TODO: consider firing out an event message
+       PostQuitMessage(-1);
+     }
++
++	// BT - 12/21/2010 - The lobby server will relay the rank details back to the game server.
++	case FM_LS_PLAYER_RANK:
++	{
++		CQLogonStats * pquery = new CQLogonStats(GotLogonDetails);
++		CQLogonStatsData * pqd = pquery->GetData();
++
++		CASTPFM(pfmPlayerRank, LS, PLAYER_RANK, pfm);
++
++		lstrcpy(pqd->szCDKey, FM_VAR_REF(pfmPlayerRank, szCDKey));
++		lstrcpy(pqd->szCharacterName, FM_VAR_REF(pfmPlayerRank, szCharacterName));
++		lstrcpy(pqd->szPassword, FM_VAR_REF(pfmPlayerRank, szPassword));
++		lstrcpy(pqd->szReason, FM_VAR_REF(pfmPlayerRank, szReason));
++
++		pqd->characterID = pfmPlayerRank->characterID;
++		pqd->fCanCheat = pfmPlayerRank->fCanCheat;
++		pqd->fRetry = pfmPlayerRank->fRetry;
++		pqd->dwCookie = pfmPlayerRank->dwCookie;
++		pqd->fValid = pfmPlayerRank->fValid;
++		pqd->dwConnectionID = pfmPlayerRank->dwConnectionID;
++
++		pqd->rank = pfmPlayerRank->rank;
++		pqd->sigma = pfmPlayerRank->sigma;
++		pqd->mu = pfmPlayerRank->mu;
++		pqd->commandRank = pfmPlayerRank->commandRank;
++		pqd->commandSigma = pfmPlayerRank->commandSigma;
++		pqd->commandMu = pfmPlayerRank->commandMu;
++
++		PostThreadMessage(g.idReceiveThread, wm_sql_querydone, (WPARAM) NULL, (LPARAM) pquery);
++		break;
++	}
++
+     break;
+   }
+ 
+Index: src/FedSrv/fsmission.cpp
+===================================================================
+--- src/FedSrv/fsmission.cpp	(revision 1036)
++++ src/FedSrv/fsmission.cpp	(working copy)
+@@ -414,9 +414,17 @@
+   {
+     assert(GetCookie()); // we can't be sending messages w/ cookies unless we have a real cookie
+ 
++	 // BT - 9/11/2010 - Supports authentication check of the CD Key.
++	char szAddress[16];
++	g.fm.GetIPAddress(*pfsPlayer->GetConnection(), szAddress);
++
+     BEGIN_PFM_CREATE(g.fmLobby, pfmPlayerJoined, S, PLAYER_JOINED)
+       FM_VAR_PARM(pfsPlayer->GetName(), CB_ZTS)
+       FM_VAR_PARM(pfsPlayer->GetCDKey(), CB_ZTS)
++
++	  // BT - 9/11/2010 - Supports authentication check of the CD Key.
++	  FM_VAR_PARM(szAddress, CB_ZTS)
++
+     END_PFM_CREATE
+     pfmPlayerJoined->dwMissionCookie = GetCookie();
+     g.fmLobby.SendMessages(g.fmLobby.GetServerConnection(), FM_GUARANTEED, FM_FLUSH);
+Index: src/FedSrv/srvqueries.h
+===================================================================
+--- src/FedSrv/srvqueries.h	(revision 1036)
++++ src/FedSrv/srvqueries.h	(working copy)
+@@ -44,6 +44,14 @@
+   short   cWins;
+   short   cLosses;
+ 
++  // BT - 12/21/2010 - CSS integration
++  double	sigma;
++  double	mu;
++  RankID	commandRank;
++  double	commandSigma;
++  double	commandMu;
++
++
+   BEGIN_COLUMN_MAP(CQLogonStatsData)
+     COLUMN_ENTRY_TYPE(1,  DBTYPE_I2, civID)
+     COLUMN_ENTRY_TYPE(2,  DBTYPE_I2, rank)
+Index: src/Inc/regkey.h
+===================================================================
+--- src/Inc/regkey.h	(revision 1036)
++++ src/Inc/regkey.h	(working copy)
+@@ -6,7 +6,7 @@
+ #ifdef _ALLEGIANCE_PROD_
+ #define ALLEGIANCE_REGISTRY_KEY_ROOT   "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.0"
+ #else
+-#define ALLEGIANCE_REGISTRY_KEY_ROOT   "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.1"
++#define ALLEGIANCE_REGISTRY_KEY_ROOT   "Software\\Microsoft\\Microsoft Games\\Allegiance\\1.3"
+ #endif
+ #endif
+ 
+@@ -15,7 +15,7 @@
+   const char c_szSvcName[] = "AllSrv";
+   #define HKLM_FedSrv        "SYSTEM\\CurrentControlSet\\Services\\AllSrv"
+   #define HKLM_AllSrvUI      ALLEGIANCE_REGISTRY_KEY_ROOT "\\Server"
+-  #define HKLM_AllLobby		 "SYSTEM\\CurrentControlSet\\Services\\AllLobby"
++  #define HKLM_AllLobby		 ALLEGIANCE_REGISTRY_KEY_ROOT "\\AllLobby" //"SYSTEM\\CurrentControlSet\\Services\\AllLobby"
+   #define HKLM_AllClub		 ALLEGIANCE_REGISTRY_KEY_ROOT "\\AllClub"
+ //#define HKLM_AllClub       "SYSTEM\\CurrentControlSet\\Services\\AllClub"
+ #else // !defined(ALLSRV_STANDALONE)
+Index: src/Inc/SlmVer.h
+===================================================================
+--- src/Inc/SlmVer.h	(revision 1036)
++++ src/Inc/SlmVer.h	(working copy)
+@@ -2,6 +2,11 @@
+ #define rmj		1
+ #define rmm		6		// Imago (R#)
+ #define rel     0.03       // mmf added to designate release number for a given build
+-#define rup		120715  // mmf make sure this has 6 digits otherwise version number conversion for esc display may fail
++#define rup		130112  // mmf make sure this has 6 digits otherwise version number conversion for esc display may fail,
++						// rup is specified in octal, so for instance 11/9/2010 (US format)
++						// Year: 2010 - use last two digits: 10, convert to octal = 12.
++						// Month: 11 - convert to octal = 13
++						// Day: 9 - convert to octal = 11
++						// Actual rup value = 121311.
+ #define szVerName	""
+ #define szVerUser	"CURTC3"
+Index: src/lobby/client.cpp
+===================================================================
+--- src/lobby/client.cpp	(revision 1036)
++++ src/lobby/client.cpp	(working copy)
+@@ -66,7 +66,8 @@
+   return dwResult;
+ }
+ 
+-static void doASGS(void* data, MprThread *threadp) {
++// BT / Orion - 9/11/2010 - Performing validation with new method on LobbyApp to share auth logic.
++static void doAuthentication(void* data, MprThread *threadp) {
+ 	CSQLQuery * pQuery = (CSQLQuery *)data;  //use the AZ legacy data & callback
+ 	CQLobbyLogon * pls = (CQLobbyLogon *)data;
+ 	CQLobbyLogonData * pqd = pls->GetData();
+@@ -74,70 +75,29 @@
+ 	FedMessaging & fm = g_pLobbyApp->GetFMClients();
+ 	CFMConnection * pcnxn = fm.GetConnectionFromId(pqd->dwConnectionID);
+ 	
+-	int contentLen = 0;
+-    char *content;
+-    char szResponse[MAX_PATH];
+-	char szURL[MPR_HTTP_MAX_URL];
+-    Strcpy(szURL,"http://asgs.alleg.net/asgs/services.asmx/AuthenticateTicket?Callsign="); 
+-	
+-	// the player callsign has to be urlencoded, because it may contain '+', '?', etc.
+-	char callsign[128];
+-	encodeURL(callsign, pqd->szCharacterName);
+-	Strcat(szURL, callsign);
+-	
+-	// add the IP to the url
+-    char szAddress[16];
++	char szAddress[16];
++	Strcpy(szAddress, "");
+ 	fm.GetIPAddress(*pcnxn,szAddress);
+-	Strcat(szURL,"&IP=");
+-	Strcat(szURL,szAddress);
++	int resultMessageLength = 1024;
++	char resultMessage[1024];
++	bool succeeded = g_pLobbyApp->CDKeyIsValid(pqd->szCharacterName, pqd->szCDKey, szAddress, resultMessage, resultMessageLength);
++	
++	printf("doAuthentication(): keycheck for: %s, key: %s, address: %s, result: %s, succeeded: %s\r\n", pqd->szCharacterName, pqd->szCDKey, szAddress, resultMessage, (succeeded == true) ? "true" : "false");
+ 
+-	// add the ticket to the url
+-	Strcat(szURL,"&Ticket=");
+-	char escaped[2048];
+-	//maUrlEncode(escaped, sizeof(escaped), pqd->szCDKey, true);  This stopped working after update? Imago 8/15/09
+-    encodeURL(escaped,pqd->szCDKey); //use Radar's function
+-	Strcat(szURL,escaped);
++	if(!succeeded)
++	{
++		mutex->lock();
++		pqd->fValid = false;
++		pqd->fRetry = false;
++		pqd->szReason = new char[lstrlen(resultMessage) + 1];
++		Strcpy(pqd->szReason,resultMessage);
++		mutex->unlock();
++	}
+ 
+-    // First make sure we can write to a socket
+-    MprSocket* socket = new MprSocket();
+-    socket->openClient("asgs.alleg.net",80,0);
+-    int iwrite = socket->_write("GET /\r\n");
+-    delete socket;
+-
+-    MaClient* client = new MaClient();
+-    client->setTimeout(3000);
+-    client->setRetries(1);
+-    client->setKeepAlive(0);
+-
+-    if (iwrite == 7) { // make sure we wrote 7 bytes
+-        client->getRequest(szURL);
+-        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
+-	        content = client->getResponseContent(&contentLen);
+-    }
+-
+-	if (contentLen > 0) { // there's POSITIVE content, we excpect it a certain way...
+-		ZString strContent = content;
+-		strContent = strContent.RightOf(85);
+-		strContent = strContent.LeftOf("<");
+-		Strcpy(szResponse,(PCC)strContent);
+-
+-		if (strcmp(szResponse,"-1") == 0) {
+-			mutex->lock();
+-			pqd->fValid = false;
+-			pqd->fRetry = false;
+-			char * szReason = "ASGS Authentication Failure.\n\nPlease restart the game using ASGS.";
+-			pqd->szReason = new char[lstrlen(szReason) + 1];
+-			Strcpy(pqd->szReason,szReason);
+-			mutex->unlock();
+-		}
+-	} 
+-
+ 	// tell the main thread we've finished, use the existing thread msg for AZ SQL 
+ 	PostThreadMessage(_Module.dwThreadID, wm_sql_querydone, (WPARAM) NULL, (LPARAM) pQuery);
+-	delete client;
+ }
+ 
+-
+ void QueueMissions(FedMessaging * pfm)
+ {
+     // Send client all the mission infos, in as few packets as possible
+@@ -237,6 +197,10 @@
+   }
+   
+   g_pLobbyApp->GetFMClients().SendMessages(pcnxn, FM_GUARANTEED, FM_FLUSH);
++
++  //Xynth 09/15/10 Close connection, don't rely on client to do it
++  if (!pqd->fValid)  
++    fm.DeleteConnection(*(pcnxn));
+ }
+ 
+ const int c_cMaxPlayers = GetRegDWORD("MaxPlayersPerServer", 350);
+@@ -301,19 +265,22 @@
+ 
+       //Imago added NACK for verson back in 8/6/09 
+       if (!fValid) {
+-          BEGIN_PFM_CREATE(*pthis, pfmLogonNack, L, LOGON_NACK)
+-          FM_VAR_PARM(szReason, CB_ZTS)
+-          END_PFM_CREATE
+-          pfmLogonNack->fRetry = false;
+-          g_pLobbyApp->GetFMClients().SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);
+-          break;
++        BEGIN_PFM_CREATE(*pthis, pfmLogonNack, L, LOGON_NACK)
++        FM_VAR_PARM(szReason, CB_ZTS)
++        END_PFM_CREATE
++        pfmLogonNack->fRetry = false;
++        g_pLobbyApp->GetFMClients().SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);          
++
++        //Xynth 9/15/10 Close the connection, don't rely on client to disconnect
++        pthis->DeleteConnection(cnxnFrom);  
++        break;
+       }
+ 
+       //Imago - Dogbones's ASGS_ON AllSrv registry entry fiasco... 8/6/09
+-      if (g_pLobbyApp->EnforceASGS()) {
++      if (g_pLobbyApp->EnforceAuthentication()) {
+ 	      char mprthname[9]; 
+ 	      mprSprintf(mprthname, sizeof(mprthname), "%d",pqd->dwConnectionID);
+-	      MprThread* threadp = new MprThread(doASGS, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname); 
++	      MprThread* threadp = new MprThread(doAuthentication, MPR_NORMAL_PRIORITY, (void*) pquery, mprthname);
+ 	      threadp->start(); //this could fail if a player is trying to login /w the same cnxn at the same time? (NYI TrapHack) - Imago 7/22/08
+       } else {
+           BEGIN_PFM_CREATE(*pthis, pfmLogonAck, L, LOGON_ACK)
+Index: src/lobby/client.h
+===================================================================
+--- src/lobby/client.h	(revision 1036)
++++ src/lobby/client.h	(working copy)
+@@ -15,6 +15,8 @@
+ // but there's not, since each connection can (for now) actually support more than one game). 
+ // CFLServer is more of a server "game" than a server "connection"
+ 
++
++
+ class CFLClient : public IObject
+ {
+ public:
+@@ -51,5 +53,9 @@
+   DWORD           m_dwID;
+ };
+ 
++
++// BT - 9/11/2010 - Making this usable by other classes.
++void encodeURL( char * url, char * token);
++
+ #endif
+ 
+Index: src/lobby/lobbyapp.cpp
+===================================================================
+--- src/lobby/lobbyapp.cpp	(revision 1036)
++++ src/lobby/lobbyapp.cpp	(working copy)
+@@ -11,6 +11,7 @@
+ #include "pch.h"
+ #include <conio.h>
+ #include <zreg.h>
++#include "client.h"
+ 
+ ALLOC_MSG_LIST;
+ 
+@@ -143,7 +144,7 @@
+   m_fProtocol(true),
+   m_cStaticCoreInfo(0),
+   m_vStaticCoreInfo(NULL),
+-  m_dwASGS(0)
++  m_dwAuthentication(0)
+ #ifdef USECLUB
+   ,
+   m_csqlSilentThreads(0),
+@@ -320,15 +321,25 @@
+ 
+     RegCloseKey(hk);
+ 
+-    //Imago 8/6/09 We can't use any of these other handy registry functions
+-    // because we have to be different and read from Allsrv's registry key ;-/
+     HKEY  hk;
+-    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, HKLM_FedSrv, 0, "", 
++    if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, HKLM_AllLobby, 0, "", 
+       REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hk, NULL) == ERROR_SUCCESS)
+     {
+-        _Module.ReadFromRegistry(hk, false, "ASGS_ON", &m_dwASGS, 0, true);
++        _Module.ReadFromRegistry(hk, false, "AUTH_ON", &m_dwAuthentication, 0, true);
+     }
+     RegCloseKey(hk);
++
++    //Orion : 2009 - Retrieve url of auth server from registry
++    if (m_dwAuthentication)
++    {
++      HKEY  hk;
++      if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, HKLM_AllLobby, 0, "", 
++        REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &hk, NULL) == ERROR_SUCCESS)
++      {
++        _Module.ReadFromRegistry(hk, true, "AUTH_ADDRESS", m_szAuthenticationLocation, NULL);
++      }
++      RegCloseKey(hk);
++    }
+   }
+ 
+   return hr;
+@@ -575,24 +586,204 @@
+   return bBootedSomeone;
+ }
+ 
+-void CLobbyApp::SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission)
++// BT - 12/21/2010 - CSS - Get all rank details from the lobby web service
++bool CLobbyApp::GetRankForCallsign(const char* szPlayerName, int *rank, double *sigma, double *mu, int *commandRank, double *commandSigma, double *commandMu, char *rankName, int rankNameLen)
+ {
++	char resultMessage[1024];
++	int contentLen = 0; 
++    char *content;
++    char szResponse[MAX_PATH];    
++	char szURL[MPR_HTTP_MAX_URL]; 
++	char szName[c_cbName];
++
++	// the player callsign has to be urlencoded, because it may contain '+', '?', etc.
++	char callsign[128];
++	char playername[128];
++	Strcpy(playername, szPlayerName);
++	strcpy(callsign, "");
++	encodeURL(callsign, playername);
++
++	char* baseUrl = g_pLobbyApp->RetrieveAuthAddress();
++	sprintf(szURL, "%s?Action=GetRank&Callsign=%s", baseUrl, callsign);
++
++	MaUrl maUrl;
++	maUrl.parse(szURL);
++
++	// First make sure we can write to a socket
++    MprSocket* socket = new MprSocket();
++	socket->openClient(maUrl.host, maUrl.port, 0);
++    int iwrite = socket->_write("GET /\r\n");
++    delete socket;
++
++    MaClient* client = new MaClient();
++    client->setTimeout(3000);
++    client->setRetries(1);
++    client->setKeepAlive(0);
++
++	strcpy(resultMessage, "Rank Retrieve Failed.\n\nPlease contact system admin.");
++
++	// make sure we wrote 7 bytes
++    if (iwrite == 7) 
++	{ 
++		debugf("retrieving rank: %s\r\n", szURL);
++
++        client->getRequest(szURL);
++        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
++	        content = client->getResponseContent(&contentLen);
++		else
++		{
++			char msg[1024];
++			sprintf(resultMessage, "Lobby GetRank Service Failed (%i)", client->getResponseCode());
++		}
++    }
++
++	debugf("GetRankForCallsign(): contentLen = %ld, content = %s\r\n", contentLen, content);
++	
++	int resultCode = -1;
++
++	char localRankName[50];
++	if(sscanf(content, "%ld|%ld|%s|%f|%f|%ld|%f|%f", &resultCode, rank, localRankName, sigma, mu, commandRank, commandSigma, commandMu) == EOF)
++		resultCode = -1;
++
++	strncpy(rankName, localRankName, rankNameLen);
++
++	// Delete this only after you are done with the content that came back from client->getResponseContent, or that 
++	// pointer will get fried.
++	delete client;
++
++	if(resultCode == 0)
+++		strcpy(resultMessage, "Rank retrieved.");
++
++	debugf(resultMessage);
++
++	return resultCode == 0;
++}
++
++// BT - 9/11/2010 - CD Key check will call back to the lobby service to ensure the authentication token is valid.
++bool CLobbyApp::CDKeyIsValid(const char* szPlayerName, const char* szCDKey, const char* szAddress, char *resultMessage, int resultMessageLength)
++{
++	int contentLen = 0; 
++    char *content;
++    char szResponse[MAX_PATH];    
++	char szURL[MPR_HTTP_MAX_URL]; 
++	char szName[c_cbName];
++
++	//Orion : 2009 - Retrieve base lobby authentication service URL
++	char* baseUrl = g_pLobbyApp->RetrieveAuthAddress();
++
++	Strcpy(szURL, baseUrl);
++ 	
++	Strcat(szURL,"?Callsign=");
++	
++ 	// one thread per connecting player
++ 	Strcpy(szName, szPlayerName);
++
++	
++	// the player callsign has to be urlencoded, because it may contain '+', '?', etc.
++	char callsign[128];
++	char playername[128];
++	Strcpy(playername, szPlayerName);
++	strcpy(callsign, "");
++	encodeURL(callsign, playername);
++	Strcat(szURL, callsign);
++	
++	// add the IP to the url
++	Strcat(szURL,"&IP=");
++	Strcat(szURL,szAddress);
++
++	// add the ticket to the url
++	Strcat(szURL,"&Ticket=");
++
++	char cdkey[2048];
++	char escapedCdKey[2048];
++
++	Strcpy(cdkey, szCDKey);
++	strcpy(escapedCdKey, "");
++    encodeURL(escapedCdKey, cdkey); 
++	Strcat(szURL,escapedCdKey);
++
++	// BT - Get rid of the hardcoded reference to the auth url.
++	MaUrl maUrl;
++	maUrl.parse(szURL);
++
++    // First make sure we can write to a socket
++    MprSocket* socket = new MprSocket();
++	socket->openClient(maUrl.host, maUrl.port, 0); // BT - Get rid of the hardcoded reference to the auth url.
++    int iwrite = socket->_write("GET /\r\n");
++    delete socket;
++
++    MaClient* client = new MaClient();
++    client->setTimeout(3000);
++    client->setRetries(1);
++    client->setKeepAlive(0);
++
++	bool succeeded = false;
++	strcpy(resultMessage, "Authentication Failure.\n\nPlease restart the game using Authentication System.");
++
++	// make sure we wrote 7 bytes
++    if (iwrite == 7) 
++	{ 
++		debugf("authenticating: %s\r\n", szURL);
++
++        client->getRequest(szURL);
++        if (client->getResponseCode() == 200) // check for HTTP OK 8/3/08
++	        content = client->getResponseContent(&contentLen);
++		else
++		{
++			char msg[1024];
++			sprintf(resultMessage, "Lobby Verification Service Failed (%i)", client->getResponseCode());
++			
++		}
++    }
++
++	debugf("CDKeyIsValid(): contentLen = %ld, content = %s\r\n", contentLen, content);
++	
++	if (contentLen > 0 && (Strcmp(content, "1") == 0)) { // there's POSITIVE content, we expect it a certain way...
++		succeeded = true;
++	}
++
++	// Delete this only after you are done with the content that came back from client->getResponseContent, or that 
++	// pointer will get fried.
++	delete client;
++
++	if(succeeded == true)
++		strcpy(resultMessage, "Authentication Succeeded.");
++
++	return succeeded;
++}
++
++void CLobbyApp::SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission, const char* szAddress)
++{
++
++	debugf("SetPlayerMission(): Setting player mission for: %s", szPlayerName);
++
+   ZString strPlayerName = szPlayerName;
+   ZString strCDKey = szCDKey;
++  ZString strAddress = szAddress;
+ 
+   // boot any old copies of this player
+ #ifdef USECLUB
+   BootPlayersByName(strPlayerName);
+ #endif
+-  if (EnforceCDKey())
++
++  //if (EnforceCDKey())
++  if(EnforceAuthentication() == true)
+   {
+-    // make sure the key requested is valid (since we can't guarantee that 
+-    // they reported the correct value to the server).
+-/* // we don't have any "instant" way to validate keys, and it's not worth it (now) to go back to db
+-    if (!CDKeyIsValid(szCDKey))
++	// BT - 9/11/2010 - Readding CD Key Auth on player join to the Allegiance server.
++	int resultMessageLength = 1024;
++	char resultMessage[1024];
++
++	debugf("SetPlayerMission(): checking valid key for: %s, cdKey: %s, IP: %s\r\n", szPlayerName, szCDKey, szAddress);
++
++	bool cdKeyIsValid = CDKeyIsValid(szPlayerName, szCDKey, szAddress, resultMessage, resultMessageLength);
++
++	debugf("SetPlayerMission(): keycheck for: %s, key: %s, address: %s, result: %s, succeeded: %s\r\n", szPlayerName, szCDKey, szAddress, resultMessage, (cdKeyIsValid == true) ? "true" : "false");
++
++    if (cdKeyIsValid == false)
+     {
+       BEGIN_PFM_CREATE(m_fmServers, pfmRemovePlayer, L, REMOVE_PLAYER)
+         FM_VAR_PARM(szPlayerName, CB_ZTS)
++        FM_VAR_PARM(resultMessage, CB_ZTS)
+       END_PFM_CREATE
+       pfmRemovePlayer->dwMissionCookie = pMission->GetCookie();
+       pfmRemovePlayer->reason = RPR_duplicateCDKey;    
+@@ -601,21 +792,22 @@
+       GetSite()->LogEvent(EVENTLOG_WARNING_TYPE, LE_BadCDKey, szCDKey,
+           pMission->GetServer()->GetConnection()->GetName(), szPlayerName);
+     }
+-    else 
+-*/
+-    ZString strOldPlayer;
++    else // BT - 9/11/2010 - End.
++	{
++		ZString strOldPlayer;
+ 
+-    if (BootPlayersByCDKey(strCDKey, szPlayerName, strOldPlayer))
+-    {
+-      BEGIN_PFM_CREATE(m_fmServers, pfmRemovePlayer, L, REMOVE_PLAYER)
+-        FM_VAR_PARM(szPlayerName, CB_ZTS)
+-        FM_VAR_PARM((PCC)strOldPlayer, CB_ZTS)
+-      END_PFM_CREATE
+-      pfmRemovePlayer->dwMissionCookie = pMission->GetCookie();
+-      pfmRemovePlayer->reason = RPR_duplicateCDKey;    
+-      m_fmServers.SendMessages(pMission->GetServer()->GetConnection(), 
+-        FM_GUARANTEED, FM_FLUSH);
+-    }
++		if (BootPlayersByCDKey(strCDKey, szPlayerName, strOldPlayer))
++		{
++		  BEGIN_PFM_CREATE(m_fmServers, pfmRemovePlayer, L, REMOVE_PLAYER)
++			FM_VAR_PARM(szPlayerName, CB_ZTS)
++			FM_VAR_PARM((PCC)strOldPlayer, CB_ZTS)
++		  END_PFM_CREATE
++		  pfmRemovePlayer->dwMissionCookie = pMission->GetCookie();
++		  pfmRemovePlayer->reason = RPR_duplicateCDKey;    
++		  m_fmServers.SendMessages(pMission->GetServer()->GetConnection(), 
++			FM_GUARANTEED, FM_FLUSH);
++		}
++	}
+   }
+ 
+   // create a new player by creating entries in the maps
+Index: src/lobby/lobbyapp.h
+===================================================================
+--- src/lobby/lobbyapp.h	(revision 1036)
++++ src/lobby/lobbyapp.h	(working copy)
+@@ -131,17 +131,28 @@
+   }
+ 
+   //Imago added 8/6/09
+-  bool EnforceASGS()
++  //Orion : 2009 - Made more generic
++  bool EnforceAuthentication()
+   {
+-      return (m_dwASGS) ? true : false;
++      return (m_dwAuthentication) ? true : false;
+   }
+ 
++  char* RetrieveAuthAddress()
++  {
++	  return m_szAuthenticationLocation;
++  }
++
+   // -KGJV: added
+   bool IsFreeLobby()
+   {
+ 	  return m_fFreeLobby;
+   }
+-  void SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission);
++
++  // BT - 12/21/2010 - CSS integration
++  bool CLobbyApp::GetRankForCallsign(const char* szPlayerName, int *rank, double *sigma, double *mu, int *commandRank, double *commandSigma, double *commandMu, char *rankName, int rankNameLen);
++  bool CDKeyIsValid(const char* szPlayerName, const char* szCDKey, const char* szAddress, char *resultMessage, int resultMessageLength);
++
++  void SetPlayerMission(const char* szPlayerName, const char* szCDKey, CFLMission* pMission, const char* szAddress);
+   void RemovePlayerFromMission(const char* szPlayerName, CFLMission* pMission);
+   void RemoveAllPlayersFromMission(CFLMission* pMission);
+   void RemoveAllPlayersFromServer(CFLServer* pServer);
+@@ -240,7 +251,8 @@
+   bool              m_fFreeLobby;
+   bool              m_fCheckCDKey;
+   char              m_szToken[24]; // sizeof(_ZONETICKET_TOKEN.szToken)
+-  DWORD             m_dwASGS;
++  DWORD             m_dwAuthentication;
++  char				m_szAuthenticationLocation[261];
+ 
+   // Player list stuff
+   typedef std::multimap<ZString, PlayerLocInfo, StringCmpLess> PlayerByCDKey;
+Index: src/lobby/messagesls.h
+===================================================================
+--- src/lobby/messagesls.h	(revision 1036)
++++ src/lobby/messagesls.h	(working copy)
+@@ -14,7 +14,7 @@
+ #include "MessageCore.h"
+ 
+ // Imago updated for R5 8/6/09
+-#define LOBBYVER_LS 11 // If you change this file, increment this // #2 6/10 // #62 7/10
++#define LOBBYVER_LS 10 // If you change this file, increment this
+ 
+ 
+ /*
+@@ -83,6 +83,7 @@
+ DEFINE_FEDMSG(S, PLAYER_JOINED, 209) // a new player has joined - tell the lobby.
+   FM_VAR_ITEM(szCharacterName); 
+   FM_VAR_ITEM(szCDKey); // Scrambled using CharacterName
++  FM_VAR_ITEM(szAddress);
+   DWORD dwMissionCookie;
+ END_FEDMSG
+ 
+@@ -112,5 +113,30 @@
+   FM_VAR_ITEM(Reason);
+ END_FEDMSG
+ 
++// BT - 12/21/2010 - CSS Integration for player ranks. 
++DEFINE_FEDMSG(LS, PLAYER_RANK, 214)
++  // These items are pass thru.
++  FM_VAR_ITEM(szCharacterName); 
++  FM_VAR_ITEM(szReason);     
++  FM_VAR_ITEM(szPassword);
++  FM_VAR_ITEM(szCDKey);
++  FM_VAR_ITEM(szRankName); // Returned from the server.
++  int characterID;
++  bool fCanCheat;
++  bool fRetry;
++  DWORD dwCookie;
++  bool fValid;
++  DWORD dwConnectionID;
++
++  // These items will also be returned from the lobby server.
++  int rank;
++  double sigma;
++  double mu;
++  int commandRank;
++  double commandSigma;
++  double commandMu;
++
++END_FEDMSG
++
+ #endif // _MESSAGES_LS_H_
+ 
+Index: src/lobby/server.cpp
+===================================================================
+--- src/lobby/server.cpp	(revision 1036)
++++ src/lobby/server.cpp	(working copy)
+@@ -10,6 +10,7 @@
+ 
+ #include "pch.h"
+ #include <string.h> // mmf added for strncmp used below
++#include "client.h" // BT - 9/11/2010 - Included to use URL functions.
+ 
+ const DWORD        CFLServer::c_dwID        = 19680815;
+ const CFLMission * CFLServer::c_AllMissions = (CFLMission*) -1;
+@@ -207,6 +208,7 @@
+       CFLMission * pMission = CFLMission::FromCookie(pfmPlayerJoined->dwMissionCookie);
+       const char* szCharacterName = FM_VAR_REF(pfmPlayerJoined, szCharacterName);
+       const char* szCDKey = FM_VAR_REF(pfmPlayerJoined, szCDKey);
++      const char* szAddress = FM_VAR_REF(pfmPlayerJoined, szAddress);
+ 
+       if (NULL == szCharacterName || '\0' != szCharacterName[pfmPlayerJoined->cbszCharacterName-1])
+           /* || NULL == szCDKey || '\0' != szCDKey[pfmPlayerJoined->cbszCDKey-1]  
+@@ -233,7 +235,7 @@
+           szCDKey = szUnencryptedCDKey;
+         }
+ 
+-        g_pLobbyApp->SetPlayerMission(szCharacterName, szCDKey, pMission);
++        g_pLobbyApp->SetPlayerMission(szCharacterName, szCDKey, pMission, szAddress);
+       }
+     }
+     break;
+@@ -264,6 +266,68 @@
+       break;
+     }      
+ 
++	// BT - 12/21/2010 - CSS integration
++	case FM_LS_PLAYER_RANK:
++	{
++		CASTPFM(pfmPlayerRankRequest, LS, PLAYER_RANK, pfm);
++
++		const char* szCharacterName = FM_VAR_REF(pfmPlayerRankRequest, szCharacterName);
++		const char* szReason = FM_VAR_REF(pfmPlayerRankRequest, szReason);
++		const char* szPassword = FM_VAR_REF(pfmPlayerRankRequest, szPassword);
++		const char* szCDKey = FM_VAR_REF(pfmPlayerRankRequest, szCDKey);
++
++		char szRankName[50];
++		int rankNameLen = sizeof(szRankName);
++		int rank;
++		double sigma;
++		double mu;
++		int commandRank;
++		double commandSigma;
++		double commandMu;
++
++		bool rankRetrieved = g_pLobbyApp->GetRankForCallsign(
++			szCharacterName, 
++			&rank,
++			&sigma,
++			&mu,
++			&commandRank, 
++			&commandSigma,
++			&commandMu,
++			szRankName,
++			rankNameLen);
++
++		BEGIN_PFM_CREATE(*pthis, pfmPlayerRankResponse, LS, PLAYER_RANK)
++			FM_VAR_PARM(PCC(szCharacterName), CB_ZTS) 
++			FM_VAR_PARM(PCC(szReason), CB_ZTS) 
++			FM_VAR_PARM(PCC(szPassword), CB_ZTS) 
++			FM_VAR_PARM(PCC(szCDKey), CB_ZTS) 
++			FM_VAR_PARM(PCC(szRankName), CB_ZTS) 
++		END_PFM_CREATE
++
++		pfmPlayerRankResponse->characterID = pfmPlayerRankRequest->characterID;
++		pfmPlayerRankResponse->fCanCheat = pfmPlayerRankRequest->fCanCheat;
++		pfmPlayerRankResponse->fRetry = pfmPlayerRankRequest->fRetry;
++		pfmPlayerRankResponse->dwCookie = pfmPlayerRankRequest->dwCookie;
++		pfmPlayerRankResponse->fValid = pfmPlayerRankRequest->fValid;
++		pfmPlayerRankResponse->dwConnectionID = pfmPlayerRankRequest->dwConnectionID;
++		pfmPlayerRankResponse->rank = rank;
++		pfmPlayerRankResponse->sigma = sigma;
++		pfmPlayerRankResponse->mu = mu;
++		pfmPlayerRankResponse->commandRank = commandRank;
++		pfmPlayerRankResponse->commandSigma = commandSigma;
++		pfmPlayerRankResponse->commandMu = commandMu;
++
++		// Set the rank to be invalid to play on any server if there was any error retrieving the rank.
++		if(rankRetrieved == false)
++			pfmPlayerRankResponse->rank = -2;
++		
++		debugf("Client: %s from <%s> at time %u. Rank: %ld\n", g_rgszMsgNames[pfm->fmid], cnxnFrom.GetName(), Time::Now(), pfmPlayerRankResponse->rank);
++
++		pthis->SendMessages(&cnxnFrom, FM_GUARANTEED, FM_FLUSH);
++
++		break;
++	}
++
+     default:
+       ZError("unknown message\n");
+   }
+Index: src/WinTrek/trekapp.cpp
+===================================================================
+--- src/WinTrek/trekapp.cpp	(revision 1036)
++++ src/WinTrek/trekapp.cpp	(working copy)
+@@ -35,6 +35,9 @@
+ //#endif
+ // wlp 2006 - added askforcallsign - don't ask if passed in on commandline
+ bool g_bAskForCallSign = true ; // wlp 2006
++
++extern bool g_bForceAuthentication = false; //Orion 2009
++
+ //////////////////////////////////////////////////////////////////////////////
+ //
+ // Trek Application Implementation
+@@ -271,8 +274,43 @@
+   return false;
+ }
+ 
++ZString ReadAuthPipe()
++{
++	const int LENGTH = 64;
++	HANDLE hWrite;
++	DWORD nDataLength;
++	DWORD nWritten;
++	DWORD *nRead;
++	char buffer[LENGTH];
++	char memoryLocation[LENGTH];
+ 
++	buffer[0] = '\0';
+ 
++	sprintf(memoryLocation, "%ld", &buffer);
++	nDataLength = strlen(memoryLocation) + 1;
++
++	debugf("sending memory location: %s\r\n", memoryLocation);
++
++	hWrite = CreateFile(_T("\\\\.\\pipe\\allegqueue"), 
++		FILE_GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
++
++	if(WriteFile(hWrite, memoryLocation, nDataLength, &nWritten, NULL) == false || nDataLength != nWritten)
++		debugf("Couldn't write memory address to named pipe for key relay.\r\n");
++
++	CloseHandle(hWrite);
++
++	for(int i = 0; i < 100 && strlen(buffer) == 0; i++)
++		Sleep(100);
++
++	if(strlen(buffer) == 0)
++		debugf("Remote process didn't deliver key to memory location within 10 seconds.\r\n"); 
++	
++	debugf("received key length: %ld, %s\r\n", strlen(buffer), buffer);
++
++	return ZString(buffer);
++};
++
++
+ class TrekAppImpl : public EffectApp {
+ public:
+     TrekAppImpl()
+@@ -553,7 +591,10 @@
+         bool bHardware        = false;
+         bool bPrimary         = false;
+         bool bSecondary       = false;
+-		bool bStartFullscreen = true;
++        bool bStartFullscreen = true;
++
++        g_bForceAuthentication = false; // Orion - 2009 : CSS
++
+         ZString strMap;
+ 		ZString strAdapter; int iUseAdapter = 0;
+ 
+@@ -626,8 +667,10 @@
+                 // wlp 2006 - added debug option to turn on debug output
+ 				} else if (str == "debug") {
+                     g_outputdebugstring  = true;           //wlp allow debug outputs
+-  				} else if (str.Left(10) == "authtoken=") { // wlp - 2006, added new ASGS tickettoken
+-                    trekClient.SetCDKey(str.RightOf(10)) ; // Use CdKey for ASGS storage
++				} else if (str == "authenticated") {
++					g_bForceAuthentication = true; //Orion - 2009 : Added new CSS Authentication; disabled ASGS
++  				//} else if (str.Left(10) == "authtoken=") { // wlp - 2006, added new ASGS tickettoken
++				//	trekClient.SetCDKey(str.RightOf(10)) ; // Use CdKey for ASGS storage
+                 } else if (str.Left(9) == "callsign=") { // wlp - 2006, added new ASGS token
+                     trekClient.SaveCharacterName(str.RightOf(9)) ; // Use CdKey for ASGS callsign storage
+                     g_bAskForCallSign = false ; // wlp callsign was entered on commandline
+@@ -644,8 +687,16 @@
+             }
+             else // wlp 2006 - adapted this string featture to add ASGS Ticket to cdKey field
+             if (token.IsString(str)){} ;
+-            }
++		}
+ 
++		//Orion - 2009 : If ForceAuthentication is true, check the alleg pipe for the auth token
++		//pkk - Jan 10th LOL?!
++		if (true) //g_bForceAuthentication)
++		{
++			trekClient.SetCDKey(ReadAuthPipe());
++		}
++
++
+         // 
+         // Check for other running copies of the app
+         //
+Index: src/WinTrek/trekigc.cpp
+===================================================================
+--- src/WinTrek/trekigc.cpp	(revision 1036)
++++ src/WinTrek/trekigc.cpp	(working copy)
+@@ -4593,6 +4593,8 @@
+ 
+ void WinTrekClient::SetCDKey(const ZString& strCDKey)
+ {
++    debugf("SetCDKey() strCDKey = %s\r\n", (const unsigned char*)(PCC) strCDKey);
++
+     HKEY hKey;
+     // wlp 2006 - Cdkey is the ASGS Ticket Now - we don't want to save it
+     //
+Index: src/WinTrek/WinTrek.cpp
+===================================================================
+--- src/WinTrek/WinTrek.cpp	(revision 1036)
++++ src/WinTrek/WinTrek.cpp	(working copy)
+@@ -4042,9 +4042,15 @@
+ 			dDD = dVer.Right(2);
+ 			dMM = dVer.Middle(2,2);
+ 			dYY = dVer.Middle(0,2);
+-			YY = atoi(dYY); 	YY = (YY/10)*8+(YY%10);
+-			MM = atoi(dMM); 	MM = (MM/10)*8+(MM%10);
+-			DD = atoi(dDD); 	DD = (DD/10)*8+(DD%10);
++
++			YY = atoi(dYY); 	
++			YY = (YY/10)*8+(YY%10);
++
++			MM = atoi(dMM); 	
++			MM = (MM/10)*8+(MM%10);
++
++			DD = atoi(dDD); 	
++			DD = (DD/10)*8+(DD%10);
+ 		}
+ 
+ 		// TE: Add version menu, mmf changed format, zero pad YY, that will last us 3 more years and saves an if
+Index: src/zlib/zassert.h
+===================================================================
+--- src/zlib/zassert.h	(revision 1036)
++++ src/zlib/zassert.h	(working copy)
+@@ -34,6 +34,8 @@
+ extern int g_outputdebugstring; // mmf added to support Radar's -debug command line
+ extern bool g_bOutput;
+ 
++extern bool g_bForceAuthentication;	//Orion - 2009 : The current process must be authenticated
++
+ #ifdef _DEBUG
+     //
+     // These are implemented in Win32app.cpp
+Index: VS2010/Allegiance.sln
+===================================================================
+--- VS2010/Allegiance.sln	(revision 1036)
++++ VS2010/Allegiance.sln	(working copy)
+@@ -14,7 +14,6 @@
+ 		..\src\Inc\messagecore.h = ..\src\Inc\messagecore.h
+ 		..\src\Inc\Messages.h = ..\src\Inc\Messages.h
+ 		..\src\Inc\quickchat.h = ..\src\Inc\quickchat.h
+-		..\src\Inc\regkey.h = ..\src\Inc\regkey.h
+ 		..\src\Inc\SlmVer.h = ..\src\Inc\SlmVer.h
+ 	EndProjectSection
+ EndProject
+Index: VS2010/Allegiance.vcxproj.user
+===================================================================
+--- VS2010/Allegiance.vcxproj.user	(revision 1036)
++++ VS2010/Allegiance.vcxproj.user	(working copy)
+@@ -8,4 +8,7 @@
+     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+     <LocalDebuggerCommandArguments>-debug -mdllog -windowlog -windowed -nomovies</LocalDebuggerCommandArguments>
+   </PropertyGroup>
++  <PropertyGroup>
++    <ShowAllFiles>false</ShowAllFiles>
++  </PropertyGroup>
+ </Project>
+\ No newline at end of file

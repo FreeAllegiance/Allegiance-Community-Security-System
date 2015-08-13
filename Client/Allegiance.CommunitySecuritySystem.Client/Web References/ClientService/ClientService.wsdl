@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="ClientService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="BasicHttpBinding_IClientService_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+          <wsp:Policy>
+            <sp:TransportToken>
+              <wsp:Policy>
+                <sp:HttpsToken RequireClientCertificate="false" />
+              </wsp:Policy>
+            </sp:TransportToken>
+            <sp:AlgorithmSuite>
+              <wsp:Policy>
+                <sp:Basic256 />
+              </wsp:Policy>
+            </sp:AlgorithmSuite>
+            <sp:Layout>
+              <wsp:Policy>
+                <sp:Strict />
+              </wsp:Policy>
+            </sp:Layout>
+          </wsp:Policy>
+        </sp:TransportBinding>
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Server.Contracts" />
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.Common.Enumerations" />
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess.Enumerations" />
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess" />
+      <xsd:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/System.Web.Security" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IClientService_GetBlackBoxForUser_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetBlackBoxForUser" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_GetBlackBoxForUser_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetBlackBoxForUserResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_LauncherSignIn_InputMessage">
+    <wsdl:part name="parameters" element="tns:LauncherSignIn" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_LauncherSignIn_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LauncherSignInResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_Login_InputMessage">
+    <wsdl:part name="parameters" element="tns:Login" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_Login_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LoginResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckIn_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckIn" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckIn_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckInResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_Logout_InputMessage">
+    <wsdl:part name="parameters" element="tns:Logout" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_Logout_OutputMessage">
+    <wsdl:part name="parameters" element="tns:LogoutResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CreateAlias_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateAlias" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CreateAlias_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateAliasResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckAlias_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAlias" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckAlias_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAliasResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckLegacyAliasExists_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckLegacyAliasExists" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckLegacyAliasExists_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckLegacyAliasExistsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ValidateLegacyCallsignUsage_InputMessage">
+    <wsdl:part name="parameters" element="tns:ValidateLegacyCallsignUsage" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ValidateLegacyCallsignUsage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ValidateLegacyCallsignUsageResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_IsAliasAvailable_InputMessage">
+    <wsdl:part name="parameters" element="tns:IsAliasAvailable" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_IsAliasAvailable_OutputMessage">
+    <wsdl:part name="parameters" element="tns:IsAliasAvailableResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_SetDefaultAlias_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetDefaultAlias" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_SetDefaultAlias_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetDefaultAliasResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ListAliases_InputMessage">
+    <wsdl:part name="parameters" element="tns:ListAliases" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ListAliases_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ListAliasesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_GetCaptcha_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetCaptcha" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_GetCaptcha_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetCaptchaResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CreateLogin_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateLogin" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CreateLogin_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateLoginResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckForUpdates_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckForUpdates" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckForUpdates_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckForUpdatesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckAvailableLobbies_InputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAvailableLobbies" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_CheckAvailableLobbies_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CheckAvailableLobbiesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ListMessages_InputMessage">
+    <wsdl:part name="parameters" element="tns:ListMessages" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ListMessages_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ListMessagesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ListPolls_InputMessage">
+    <wsdl:part name="parameters" element="tns:ListPolls" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ListPolls_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ListPollsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ApplyVote_InputMessage">
+    <wsdl:part name="parameters" element="tns:ApplyVote" />
+  </wsdl:message>
+  <wsdl:message name="IClientService_ApplyVote_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ApplyVoteResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IClientService">
+    <wsdl:operation name="GetBlackBoxForUser">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/GetBlackBoxForUser" message="tns:IClientService_GetBlackBoxForUser_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/GetBlackBoxForUserResponse" message="tns:IClientService_GetBlackBoxForUser_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="LauncherSignIn">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/LauncherSignIn" message="tns:IClientService_LauncherSignIn_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/LauncherSignInResponse" message="tns:IClientService_LauncherSignIn_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/Login" message="tns:IClientService_Login_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/LoginResponse" message="tns:IClientService_Login_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckIn">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CheckIn" message="tns:IClientService_CheckIn_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CheckInResponse" message="tns:IClientService_CheckIn_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/Logout" message="tns:IClientService_Logout_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/LogoutResponse" message="tns:IClientService_Logout_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateAlias">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CreateAlias" message="tns:IClientService_CreateAlias_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CreateAliasResponse" message="tns:IClientService_CreateAlias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAlias">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CheckAlias" message="tns:IClientService_CheckAlias_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CheckAliasResponse" message="tns:IClientService_CheckAlias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckLegacyAliasExists">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CheckLegacyAliasExists" message="tns:IClientService_CheckLegacyAliasExists_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CheckLegacyAliasExistsResponse" message="tns:IClientService_CheckLegacyAliasExists_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLegacyCallsignUsage">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/ValidateLegacyCallsignUsage" message="tns:IClientService_ValidateLegacyCallsignUsage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/ValidateLegacyCallsignUsageResponse" message="tns:IClientService_ValidateLegacyCallsignUsage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="IsAliasAvailable">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/IsAliasAvailable" message="tns:IClientService_IsAliasAvailable_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/IsAliasAvailableResponse" message="tns:IClientService_IsAliasAvailable_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultAlias">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/SetDefaultAlias" message="tns:IClientService_SetDefaultAlias_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/SetDefaultAliasResponse" message="tns:IClientService_SetDefaultAlias_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ListAliases">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/ListAliases" message="tns:IClientService_ListAliases_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/ListAliasesResponse" message="tns:IClientService_ListAliases_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCaptcha">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/GetCaptcha" message="tns:IClientService_GetCaptcha_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/GetCaptchaResponse" message="tns:IClientService_GetCaptcha_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateLogin">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CreateLogin" message="tns:IClientService_CreateLogin_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CreateLoginResponse" message="tns:IClientService_CreateLogin_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckForUpdates">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CheckForUpdates" message="tns:IClientService_CheckForUpdates_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CheckForUpdatesResponse" message="tns:IClientService_CheckForUpdates_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CheckAvailableLobbies">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/CheckAvailableLobbies" message="tns:IClientService_CheckAvailableLobbies_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/CheckAvailableLobbiesResponse" message="tns:IClientService_CheckAvailableLobbies_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ListMessages">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/ListMessages" message="tns:IClientService_ListMessages_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/ListMessagesResponse" message="tns:IClientService_ListMessages_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ListPolls">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/ListPolls" message="tns:IClientService_ListPolls_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/ListPollsResponse" message="tns:IClientService_ListPolls_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ApplyVote">
+      <wsdl:input wsaw:Action="http://tempuri.org/IClientService/ApplyVote" message="tns:IClientService_ApplyVote_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IClientService/ApplyVoteResponse" message="tns:IClientService_ApplyVote_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IClientService" type="tns:IClientService">
+    <wsp:PolicyReference URI="#BasicHttpBinding_IClientService_policy" />
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetBlackBoxForUser">
+      <soap:operation soapAction="http://tempuri.org/IClientService/GetBlackBoxForUser" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="LauncherSignIn">
+      <soap:operation soapAction="http://tempuri.org/IClientService/LauncherSignIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <soap:operation soapAction="http://tempuri.org/IClientService/Login" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckIn">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CheckIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Logout">
+      <soap:operation soapAction="http://tempuri.org/IClientService/Logout" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateAlias">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CreateAlias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAlias">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CheckAlias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckLegacyAliasExists">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CheckLegacyAliasExists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ValidateLegacyCallsignUsage">
+      <soap:operation soapAction="http://tempuri.org/IClientService/ValidateLegacyCallsignUsage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsAliasAvailable">
+      <soap:operation soapAction="http://tempuri.org/IClientService/IsAliasAvailable" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetDefaultAlias">
+      <soap:operation soapAction="http://tempuri.org/IClientService/SetDefaultAlias" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListAliases">
+      <soap:operation soapAction="http://tempuri.org/IClientService/ListAliases" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCaptcha">
+      <soap:operation soapAction="http://tempuri.org/IClientService/GetCaptcha" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateLogin">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CreateLogin" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckForUpdates">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CheckForUpdates" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CheckAvailableLobbies">
+      <soap:operation soapAction="http://tempuri.org/IClientService/CheckAvailableLobbies" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListMessages">
+      <soap:operation soapAction="http://tempuri.org/IClientService/ListMessages" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ListPolls">
+      <soap:operation soapAction="http://tempuri.org/IClientService/ListPolls" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ApplyVote">
+      <soap:operation soapAction="http://tempuri.org/IClientService/ApplyVote" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ClientService">
+    <wsdl:port name="BasicHttpBinding_IClientService" binding="tns:BasicHttpBinding_IClientService">
+      <soap:address location="https://localhost/CSSServer/ClientService.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

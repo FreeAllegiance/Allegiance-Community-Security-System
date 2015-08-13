@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Allegiance.CommunitySecuritySystem.DataAccess" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="https://localhost/CSSServer/ClientService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="ArrayOfAlias">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Alias" nillable="true" type="tns:Alias" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAlias" nillable="true" type="tns:ArrayOfAlias" />
+  <xs:complexType name="Alias">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="LoginId" type="xs:int" />
+      <xs:element minOccurs="0" name="Callsign" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsDefault" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsActive" type="xs:boolean" />
+      <xs:element minOccurs="0" name="DateCreated" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Group_Alias_GroupRoles" nillable="true" type="tns:ArrayOfGroup_Alias_GroupRole">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" name="GroupRequests" nillable="true" type="tns:ArrayOfGroupRequest">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" name="Sessions" nillable="true" type="tns:ArrayOfSession">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" name="GroupMessage_Alias" nillable="true" type="tns:ArrayOfGroupMessage_Alias">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" name="PersonalMessages" nillable="true" type="tns:ArrayOfPersonalMessage">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" name="GroupMessages" nillable="true" type="tns:ArrayOfGroupMessage">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Alias" nillable="true" type="tns:Alias" />
+  <xs:complexType name="ArrayOfGroup_Alias_GroupRole">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Group_Alias_GroupRole" nillable="true" type="tns:Group_Alias_GroupRole" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGroup_Alias_GroupRole" nillable="true" type="tns:ArrayOfGroup_Alias_GroupRole" />
+  <xs:complexType name="Group_Alias_GroupRole">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="AliasId" type="xs:int" />
+      <xs:element minOccurs="0" name="GroupRoleId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Group_Alias_GroupRole" nillable="true" type="tns:Group_Alias_GroupRole" />
+  <xs:complexType name="ArrayOfGroupRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="GroupRequest" nillable="true" type="tns:GroupRequest" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGroupRequest" nillable="true" type="tns:ArrayOfGroupRequest" />
+  <xs:complexType name="GroupRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="RequestTypeId" type="xs:int" />
+      <xs:element minOccurs="0" name="AliasId" type="xs:int" />
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="DateCreated" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GroupRequest" nillable="true" type="tns:GroupRequest" />
+  <xs:complexType name="ArrayOfSession">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Session" nillable="true" type="tns:Session" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfSession" nillable="true" type="tns:ArrayOfSession" />
+  <xs:complexType name="Session">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="ser:guid" />
+      <xs:element minOccurs="0" name="LoginId" type="xs:int" />
+      <xs:element minOccurs="0" name="ActiveKeyId" type="xs:int" />
+      <xs:element minOccurs="0" name="SessionStatusId" type="xs:int" />
+      <xs:element minOccurs="0" name="DateLastCheckIn" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="IPAddress" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AliasId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Session" nillable="true" type="tns:Session" />
+  <xs:complexType name="ArrayOfGroupMessage_Alias">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="GroupMessage_Alias" nillable="true" type="tns:GroupMessage_Alias" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGroupMessage_Alias" nillable="true" type="tns:ArrayOfGroupMessage_Alias" />
+  <xs:complexType name="GroupMessage_Alias">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="GroupMessageId" type="xs:int" />
+      <xs:element minOccurs="0" name="AliasId" type="xs:int" />
+      <xs:element minOccurs="0" name="DateViewed" nillable="true" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GroupMessage_Alias" nillable="true" type="tns:GroupMessage_Alias" />
+  <xs:complexType name="ArrayOfPersonalMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PersonalMessage" nillable="true" type="tns:PersonalMessage" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPersonalMessage" nillable="true" type="tns:ArrayOfPersonalMessage" />
+  <xs:complexType name="PersonalMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Subject" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DateCreated" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DateToSend" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DateExpires" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="LoginId" type="xs:int" />
+      <xs:element minOccurs="0" name="DateViewed" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="SenderAliasId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PersonalMessage" nillable="true" type="tns:PersonalMessage" />
+  <xs:complexType name="ArrayOfGroupMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="GroupMessage" nillable="true" type="tns:GroupMessage" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfGroupMessage" nillable="true" type="tns:ArrayOfGroupMessage" />
+  <xs:complexType name="GroupMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Sender" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Subject" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupId" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="DateCreated" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DateToSend" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DateExpires" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="SenderAliasId" type="xs:int" />
+      <xs:element minOccurs="0" name="GroupMessage_Alias" nillable="true" type="tns:ArrayOfGroupMessage_Alias">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GroupMessage" nillable="true" type="tns:GroupMessage" />
+  <xs:complexType name="ArrayOfFindAutoUpdateFilesResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="FindAutoUpdateFilesResult" nillable="true" type="tns:FindAutoUpdateFilesResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfFindAutoUpdateFilesResult" nillable="true" type="tns:ArrayOfFindAutoUpdateFilesResult" />
+  <xs:complexType name="FindAutoUpdateFilesResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AutoUpdateFileId" type="xs:int" />
+      <xs:element minOccurs="0" name="LobbyId" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="ValidChecksum" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CurrentVersion" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DateCreated" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DateModified" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Filename" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="IsProtected" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="FindAutoUpdateFilesResult" nillable="true" type="tns:FindAutoUpdateFilesResult" />
+  <xs:complexType name="ArrayOfPoll">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Poll" nillable="true" type="tns:Poll" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPoll" nillable="true" type="tns:ArrayOfPoll" />
+  <xs:complexType name="Poll">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Question" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DateCreated" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="DateExpires" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="LastRecalculation" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="PollOptions" nillable="true" type="tns:ArrayOfPollOption">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Poll" nillable="true" type="tns:Poll" />
+  <xs:complexType name="ArrayOfPollOption">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PollOption" nillable="true" type="tns:PollOption" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPollOption" nillable="true" type="tns:ArrayOfPollOption" />
+  <xs:complexType name="PollOption">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="PollId" type="xs:int" />
+      <xs:element minOccurs="0" name="Option" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VoteCount" type="xs:int" />
+      <xs:element minOccurs="0" name="PollVotes" nillable="true" type="tns:ArrayOfPollVote">
+        <xs:annotation>
+          <xs:appinfo>
+            <DefaultValue EmitDefaultValue="false" xmlns="http://schemas.microsoft.com/2003/10/Serialization/" />
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PollOption" nillable="true" type="tns:PollOption" />
+  <xs:complexType name="ArrayOfPollVote">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PollVote" nillable="true" type="tns:PollVote" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPollVote" nillable="true" type="tns:ArrayOfPollVote" />
+  <xs:complexType name="PollVote">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="PollOptionId" type="xs:int" />
+      <xs:element minOccurs="0" name="LoginId" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PollVote" nillable="true" type="tns:PollVote" />
+</xs:schema>

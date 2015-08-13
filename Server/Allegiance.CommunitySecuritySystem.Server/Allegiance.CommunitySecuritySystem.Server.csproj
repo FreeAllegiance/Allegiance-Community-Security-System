@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5EC2F499-91C4-40B5-9B8F-957A74F6D2DD}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Allegiance.CommunitySecuritySystem.Server</RootNamespace>
+    <AssemblyName>Allegiance.CommunitySecuritySystem.Server</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>4.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <UseIISExpress>false</UseIISExpress>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CookComputing.XmlRpcV2, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Includes\CookComputing.XmlRpcV2.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web.Mobile" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Administration.svc" />
+    <Content Include="GameData.svc" />
+    <Content Include="Includes\CookComputing.XmlRpcV2.dll" />
+    <Content Include="Stats.svc" />
+    <Content Include="StatsRest.svc" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Administration.svc.cs">
+      <DependentUpon>Administration.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Configuration.cs" />
+    <Compile Include="Contracts\ActivePlayerData.cs" />
+    <Compile Include="Contracts\AuthenticatedData.cs" />
+    <Compile Include="Contracts\AutoUpdateData.cs" />
+    <Compile Include="Contracts\AutoUpdateResult.cs" />
+    <Compile Include="Contracts\BanData.cs" />
+    <Compile Include="Contracts\CaptchaResult.cs" />
+    <Compile Include="Contracts\CheckInData.cs" />
+    <Compile Include="Contracts\CheckInResult.cs" />
+    <Compile Include="Contracts\CommitPlayerDataRequest.cs" />
+    <Compile Include="Contracts\CommitPlayerDataResponse.cs" />
+    <Compile Include="Contracts\GetBannedUsernamesAfterTimestampResult.cs" />
+    <Compile Include="Contracts\GetUsernameFromCallsignOrUsernameResult.cs" />
+    <Compile Include="Contracts\IsAliasLegacyResult.cs" />
+    <Compile Include="Contracts\LauncherSignInData.cs" />
+    <Compile Include="Contracts\LauncherSignInResult.cs" />
+    <Compile Include="Contracts\LoginResult.cs" />
+    <Compile Include="Contracts\ListMessageResult.cs" />
+    <Compile Include="Contracts\SetDefaultAliasData.cs" />
+    <Compile Include="Contracts\CreateLoginResult.cs" />
+    <Compile Include="Contracts\LobbyResult.cs" />
+    <Compile Include="Contracts\LoginData.cs" />
+    <Compile Include="Contracts\ListAliasesResult.cs" />
+    <Compile Include="Contracts\PollData.cs" />
+    <Compile Include="ClientService.svc.cs">
+      <DependentUpon>ClientService.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Contracts\ValidateLegacyAliasResult.cs" />
+    <Compile Include="Data\GameDataset.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GameDataset.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="GameData.svc.cs">
+      <DependentUpon>GameData.svc</DependentUpon>
+    </Compile>
+    <Compile Include="IGameData.cs" />
+    <Compile Include="Interfaces\IAdministration.cs" />
+    <Compile Include="Interfaces\IClientService.cs" />
+    <Compile Include="Interfaces\ITag.cs" />
+    <Compile Include="IPConvergeHandler.cs" />
+    <Compile Include="Interfaces\IStats.cs" />
+    <Compile Include="Contracts\LoadPlayerDataRequest.cs" />
+    <Compile Include="Contracts\LoadPlayerDataResponse.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Providers\HostFactory.cs" />
+    <Compile Include="Services\Authenticator.cs" />
+    <Compile Include="Services\AutoUpdate.cs" />
+    <Compile Include="Services\Messaging.cs" />
+    <Compile Include="Services\Polling.cs" />
+    <Compile Include="Services\Tag.cs" />
+    <Compile Include="Stats.svc.cs">
+      <DependentUpon>Stats.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Tag.svc.cs">
+      <DependentUpon>Tag.svc</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\HeloRankCalculator.cs" />
+    <Compile Include="Utilities\LinqErrorDetector.cs" />
+    <Compile Include="Utilities\PHPSerializer.cs" />
+    <Compile Include="Utilities\PrestigeRankCalculator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\Allegiance.CommunitySecuritySystem.DataAccess\Allegiance.CommunitySecuritySystem.DataAccess.csproj">
+      <Project>{B8178CDC-46A1-46D6-AB6E-D9B393BE0746}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Tasks\Allegiance.CommunitySecuritySystem.BlackboxGenerator\Allegiance.CommunitySecuritySystem.BlackboxGenerator.csproj">
+      <Project>{299DA572-03B1-4A38-AF83-B1BC58744A17}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.BlackboxGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Allegiance.CommunitySecuritySystem.AllegSkill\Allegiance.CommunitySecuritySystem.AllegSkill.csproj">
+      <Project>{69F2D660-D58D-4441-8241-F3B0CDDB78EC}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.AllegSkill</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Allegiance.CommunitySecuritySystem.Common\Allegiance.CommunitySecuritySystem.Common.csproj">
+      <Project>{FC9B4878-2453-45FA-9387-41726866139E}</Project>
+      <Name>Allegiance.CommunitySecuritySystem.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ClientService.svc" />
+    <Content Include="Includes\ICSharpCode.SharpZipLib.dll" />
+    <Content Include="Tag.svc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\GameDataset.xsc">
+      <DependentUpon>GameDataset.xsd</DependentUpon>
+    </None>
+    <None Include="Data\GameDataset.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>GameDataset.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Data\GameDataset.xss">
+      <DependentUpon>GameDataset.xsd</DependentUpon>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>56123</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost/CSSServer</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

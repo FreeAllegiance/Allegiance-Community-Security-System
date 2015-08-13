@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema id="GameDataset" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xs:element name="GameDataset" msdata:IsDataSet="true">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="Game">
+					<xs:complexType>
+							<xs:sequence>
+								<xs:element name="GameID" type="xs:int" />
+								<xs:element name="GameName" type="xs:string" />
+								<xs:element name="CoreFile" type="xs:string" />
+								<xs:element name="MapName" type="xs:string" />
+								<xs:element name="SquadGame" type="xs:boolean" />
+								<xs:element name="Conquest" type="xs:boolean" />
+								<xs:element name="DeathMatch" type="xs:boolean" />
+								<xs:element name="DeathmatchGoal" type="xs:int" minOccurs="0" />
+								<xs:element name="FriendlyFire" type="xs:boolean" />
+								<xs:element name="RevealMap" type="xs:boolean" minOccurs="0" />
+								<xs:element name="AllowDevelopments" type="xs:boolean" />
+								<xs:element name="AllowShipyards" type="xs:boolean" />
+								<xs:element name="AllowDefections" type="xs:boolean" />
+								<xs:element name="InvulnerableStations" type="xs:boolean" />
+								<xs:element name="StatsCount" type="xs:boolean" />
+								<xs:element name="MaxImbalance" type="xs:int" />
+								<xs:element name="StartingMoney" type="xs:float" />
+								<xs:element name="TotalMoney" type="xs:float" />
+								<xs:element name="Resources" type="xs:int" />
+								<xs:element name="StartTime" type="xs:dateTime" />
+								<xs:element name="EndTime" type="xs:dateTime" />
+							</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="GameEvent">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="GameID" type="xs:int" />
+							<xs:element name="EventID" type="xs:int" />
+							<xs:element name="EventTime" type="xs:dateTime" />
+							<xs:element name="PerformerID" type="xs:int" />
+							<xs:element name="PerformerName" type="xs:string" />
+							<xs:element name="TargetID" type="xs:int" />
+							<xs:element name="TargetName" type="xs:string" />
+							<xs:element name="IndirectID" type="xs:int" />
+							<xs:element name="IndirectName" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ChatLog">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="GameID" type="xs:int" />
+							<xs:element name="ChatTime" type="xs:dateTime" />
+							<xs:element name="SpeakerName" type="xs:string" />
+							<xs:element name="TargetName" type="xs:string" />
+							<xs:element name="Text" type="xs:string" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Team">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="TeamID" type="xs:int" />
+							<xs:element name="GameID" type="xs:int" />
+							<xs:element name="TeamNumber" type="xs:int" />
+							<xs:element name="TeamName" type="xs:string" />
+							<xs:element name="Commander" type="xs:string" />
+							<xs:element name="Faction" type="xs:string" />
+							<xs:element name="ResearchedStarbase" type="xs:boolean" />
+							<xs:element name="ResearchedSupremacy" type="xs:boolean" />
+							<xs:element name="ResearchedTactical" type="xs:boolean" />
+							<xs:element name="ResearchedExpansion" type="xs:boolean" />
+							<xs:element name="ResearchedShipyard" type="xs:boolean" />
+							<xs:element name="Won" type="xs:boolean" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="TeamMember">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="TeamID" type="xs:int" minOccurs="0" />
+							<xs:element name="Callsign" type="xs:string" minOccurs="0" />
+							<xs:element name="Duration" type="xs:int" minOccurs="0" />
+							<xs:element name="JoinTime" type="xs:dateTime" minOccurs="0" />
+							<xs:element name="LeaveTime" type="xs:dateTime" minOccurs="0" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+		<xs:key name="GameIDKey" msdata:PrimaryKey="true">
+			<xs:selector xpath=".//Game" />
+			<xs:field xpath="GameID" />
+		</xs:key>
+		<xs:keyref name="GameGameEvent" refer="GameIDKey" msdata:DeleteRule="None" msdata:UpdateRule="None"
+			msdata:AcceptRejectRule="None">
+			<xs:selector xpath=".//GameEvent" />
+			<xs:field xpath="GameID" />
+		</xs:keyref>
+		<xs:keyref name="GameChatLog" refer="GameIDKey" msdata:DeleteRule="None" msdata:UpdateRule="None"
+			msdata:AcceptRejectRule="None">
+			<xs:selector xpath=".//ChatLog" />
+			<xs:field xpath="GameID" />
+		</xs:keyref>
+		<xs:keyref name="GameTeams" refer="GameIDKey" msdata:DeleteRule="None" msdata:UpdateRule="None"
+			msdata:AcceptRejectRule="None">
+			<xs:selector xpath=".//Team" />
+			<xs:field xpath="GameID" />
+		</xs:keyref>
+		<xs:key name="PK_TeamID" msdata:PrimaryKey="true">
+			<xs:selector xpath=".//Team" />
+			<xs:field xpath="TeamID" />
+		</xs:key>
+		<xs:keyref name="TeamTeamMember" refer="PK_TeamID" msdata:DeleteRule="None" msdata:UpdateRule="None"
+			msdata:AcceptRejectRule="None">
+			<xs:selector xpath=".//TeamMember" />
+			<xs:field xpath="TeamID" />
+		</xs:keyref>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,2 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="Allegiance.CommunitySecuritySystem.Server.Stats" CodeBehind="Stats.svc.cs" %>
+

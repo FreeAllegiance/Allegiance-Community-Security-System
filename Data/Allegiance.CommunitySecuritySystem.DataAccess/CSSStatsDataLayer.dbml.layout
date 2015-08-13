@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 18.625, 14" name="CSSStatsDataLayer">
+  <DataContextMoniker Name="/CSSStatsDataContext" />
+  <nestedChildShapes>
+    <classShape Id="38faf0d5-ff77-4a7b-a92d-aa1c49074597" absoluteBounds="2.125, 3.875, 2, 1.9631982421874996">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameChatLog" />
+      <nestedChildShapes>
+        <elementListCompartment Id="b78308b5-8537-4479-ad81-d979b705b626" absoluteBounds="2.1399999999999997, 4.335, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="8cdc41b5-e57d-41d7-8310-bb56fb8f8847" absoluteBounds="8.75, 6.75, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameEventType" />
+      <nestedChildShapes>
+        <elementListCompartment Id="d1aa1c39-3328-4a62-ae96-99ae1b08684d" absoluteBounds="8.765, 7.21, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="08fc4424-8df0-41e5-8a40-e962e7b87387" absoluteBounds="0.75, 6.25, 2, 1.3862939453124996">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameServer" />
+      <nestedChildShapes>
+        <elementListCompartment Id="b4679d98-73a7-4c2a-98ba-eee1f5c3a8c1" absoluteBounds="0.765, 6.71, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="09e975c5-ec89-409e-8a3c-4ff67632f4eb" absoluteBounds="0.75, 2, 2, 1.3862939453125">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameServerIP" />
+      <nestedChildShapes>
+        <elementListCompartment Id="a17cc391-5f6d-433c-b925-5f21e736b353" absoluteBounds="0.76500000000000012, 2.46, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="87f42fc8-c85b-4941-89c2-dd57d4029561" absoluteBounds="11.75, 0.75, 2, 3.8862125651041666">
+      <DataClassMoniker Name="/CSSStatsDataContext/StatsFaction" />
+      <nestedChildShapes>
+        <elementListCompartment Id="8c5f777f-307b-4080-afbc-744274ddea06" absoluteBounds="11.765, 1.21, 1.9700000000000002, 3.3262125651041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="61705a51-5644-4943-aa48-b5a187540a1d" absoluteBounds="0.75, 11.75, 2, 1.9631982421875005">
+      <DataClassMoniker Name="/CSSStatsDataContext/StatsMetric" />
+      <nestedChildShapes>
+        <elementListCompartment Id="2cb7239d-f44b-4a9a-b25b-fb1b31cf0b5f" absoluteBounds="0.765, 12.21, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(1.40625 : 6.25); (1.40625 : 3.3862939453125)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/CSSStatsDataContext/GameServer/GameServer_GameServerIP" />
+      <nodes>
+        <classShapeMoniker Id="08fc4424-8df0-41e5-8a40-e962e7b87387" />
+        <classShapeMoniker Id="09e975c5-ec89-409e-8a3c-4ff67632f4eb" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="ea82718d-3b98-432c-ab29-9d03391e18ba" absoluteBounds="3.5, 6.375, 2, 5.2323225911458326">
+      <DataClassMoniker Name="/CSSStatsDataContext/Game" />
+      <nestedChildShapes>
+        <elementListCompartment Id="de49b92b-b1a5-42f7-98a6-f7ab6f1814c3" absoluteBounds="3.5149999999999997, 6.835, 1.9700000000000002, 4.672322591145833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(3.8125 : 6.375); (3.8125 : 5.8381982421875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/CSSStatsDataContext/Game/Game_GameChatLog" />
+      <nodes>
+        <classShapeMoniker Id="ea82718d-3b98-432c-ab29-9d03391e18ba" />
+        <classShapeMoniker Id="38faf0d5-ff77-4a7b-a92d-aa1c49074597" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.75 : 7.00564697265625); (3.5 : 7.00564697265625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/CSSStatsDataContext/GameServer/GameServer_Game" />
+      <nodes>
+        <classShapeMoniker Id="08fc4424-8df0-41e5-8a40-e962e7b87387" />
+        <classShapeMoniker Id="ea82718d-3b98-432c-ab29-9d03391e18ba" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="47e09969-e5e8-4fc5-bfff-2b3c47b44fe1" absoluteBounds="6.125, 9.875, 2, 3.5016097005208326">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameTeam" />
+      <nestedChildShapes>
+        <elementListCompartment Id="7fbb4e76-7b1b-4ea1-8380-f0ef97d2b1d9" absoluteBounds="6.14, 10.335, 1.9700000000000002, 2.941609700520833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(4.34375 : 10.9224471028646); (4.34375 : 12.1620711263021); (6.125 : 12.1620711263021)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/CSSStatsDataContext/Game/Game_GameTeam" />
+      <nodes>
+        <classShapeMoniker Id="ea82718d-3b98-432c-ab29-9d03391e18ba" />
+        <classShapeMoniker Id="47e09969-e5e8-4fc5-bfff-2b3c47b44fe1" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="8083fc58-5b04-4ad7-bc84-44957dc8e282" absoluteBounds="4.5, 2.375, 2, 3.5016097005208326">
+      <DataClassMoniker Name="/CSSStatsDataContext/AS_GamePlayerA" />
+      <nestedChildShapes>
+        <elementListCompartment Id="27382f08-931c-422a-9bb4-0d6f5c5b31ac" absoluteBounds="4.515, 2.8350000000000009, 1.9700000000000002, 2.941609700520833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(5 : 6.375); (5 : 5.87660970052083)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/CSSStatsDataContext/Game/Game_AS_GamePlayerA" />
+      <nodes>
+        <classShapeMoniker Id="ea82718d-3b98-432c-ab29-9d03391e18ba" />
+        <classShapeMoniker Id="8083fc58-5b04-4ad7-bc84-44957dc8e282" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="2acfb495-a2e5-4f55-afe5-648bdf9b1a82" absoluteBounds="6, 6.25, 2, 3.1170068359375">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameEvent" />
+      <nestedChildShapes>
+        <elementListCompartment Id="86d63f10-d43b-4351-8d33-01a4ea0d9195" absoluteBounds="6.015, 6.71, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(5.5 : 8.78762044270833); (6 : 8.78762044270833)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/CSSStatsDataContext/Game/Game_GameEvent" />
+      <nodes>
+        <classShapeMoniker Id="ea82718d-3b98-432c-ab29-9d03391e18ba" />
+        <classShapeMoniker Id="2acfb495-a2e5-4f55-afe5-648bdf9b1a82" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="59fa1ca8-6dcc-4600-9d40-24dfaf4d5bde" absoluteBounds="9, 10.875, 2, 1.9631982421875">
+      <DataClassMoniker Name="/CSSStatsDataContext/GameTeamMember" />
+      <nestedChildShapes>
+        <elementListCompartment Id="2a9f2322-85c0-4001-81f9-073c12113ee8" absoluteBounds="9.015, 11.335, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(8.125 : 11.8565991210937); (9 : 11.8565991210937)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/CSSStatsDataContext/GameTeam/GameTeam_GameTeamMember" />
+      <nodes>
+        <classShapeMoniker Id="47e09969-e5e8-4fc5-bfff-2b3c47b44fe1" />
+        <classShapeMoniker Id="59fa1ca8-6dcc-4600-9d40-24dfaf4d5bde" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="4ef11003-1e9c-4ba9-99fe-0a25e09ce60a" absoluteBounds="11.375, 5.75, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/CSSStatsDataContext/LossFactor" />
+      <nestedChildShapes>
+        <elementListCompartment Id="c47e060a-cb98-49b0-a191-beb11c1be8e1" absoluteBounds="11.39, 6.21, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="b1a77c34-3491-4558-9794-3f29224f1e61" absoluteBounds="13.75, 5.75, 2, 1.9631982421874987">
+      <DataClassMoniker Name="/CSSStatsDataContext/Level" />
+      <nestedChildShapes>
+        <elementListCompartment Id="59084d62-9baf-4d82-8751-abdd7d9062b9" absoluteBounds="13.765, 6.2100000000000009, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="303f390e-1763-4741-b8b4-cd7dccf4f994" absoluteBounds="13.75, 8, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/CSSStatsDataContext/WinFactor" />
+      <nestedChildShapes>
+        <elementListCompartment Id="bb811408-603e-45b9-b15e-cdea39d201ed" absoluteBounds="13.765, 8.46, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="300a2f21-0edb-40e7-9aa0-2fdd8d12ddf9" absoluteBounds="11.375, 7.75, 2, 2.1554996744791666">
+      <DataClassMoniker Name="/CSSStatsDataContext/ExperianceExchange" />
+      <nestedChildShapes>
+        <elementListCompartment Id="00c6935b-9dac-49b8-9808-95888e3d8c8c" absoluteBounds="11.39, 8.21, 1.9700000000000002, 1.5954996744791665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="6c6cdbdd-dbaa-4b06-96da-dbeb547c008d" absoluteBounds="8.375, 0.5, 2, 5.8092268880208326">
+      <DataClassMoniker Name="/CSSStatsDataContext/StatsLeaderboard" />
+      <nestedChildShapes>
+        <elementListCompartment Id="9f5ad2dd-a222-4404-91ec-f6301d788143" absoluteBounds="8.39, 0.96, 1.9700000000000002, 5.249226888020833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(8.375 : 4.12580485026042); (6.5 : 4.12580485026042)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/CSSStatsDataContext/StatsLeaderboard/StatsLeaderboard_AS_GamePlayerA" />
+      <nodes>
+        <classShapeMoniker Id="6c6cdbdd-dbaa-4b06-96da-dbeb547c008d" />
+        <classShapeMoniker Id="8083fc58-5b04-4ad7-bc84-44957dc8e282" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="1761baf4-5f8d-4abe-8d89-2357a51f38cc" absoluteBounds="16.375, 0.75, 2, 6.7707340494791657">
+      <DataClassMoniker Name="/CSSStatsDataContext/ScoreQueue" />
+      <nestedChildShapes>
+        <elementListCompartment Id="88224f50-28ba-4228-afbe-821bc2fc600e" absoluteBounds="16.39, 1.21, 1.9700000000000002, 6.2107340494791661" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>
