@@ -1686,3 +1686,71 @@ BEGIN
 			ORDER BY cs.Ordinal
 END
 GO
+
+
+USE [CSSStats]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fn_CalculateNearCharStatsOrdinal]    Script Date: 08/26/2015 22:33:29 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Nick Pirocanac (BackTrak)
+-- 
+-- Calculates the ordinal location to show the target item 
+-- and the leading and trailing items within 41 on each side.
+-- =============================================
+CREATE FUNCTION [dbo].[fn_CalculateNearCharStatsOrdinal] 
+(
+	@CharacterOrdinal int,
+	@SearchString nvarchar(100)
+)
+RETURNS int 
+AS
+BEGIN
+	DECLARE @FirstOrdinal INT
+	
+	DECLARE @TotalRowCount as INT
+    
+    SELECT @TotalRowCount = COUNT(*) 
+    FROM CharStats
+    
+    IF @CharacterOrdinal IS NULL AND LEN(ISNULL(@SearchString, '')) = 0
+    BEGIN
+		SET @FirstOrdinal = 1
+    END
+    
+    ELSE IF @TotalRowCount - ISNULL(@CharacterOrdinal, 1) < 40
+    BEGIN
+		SET @FirstOrdinal = @TotalRowCount - 82;
+		IF @FirstOrdinal < 1
+		BEGIN
+			SET @FirstOrdinal = 1
+		END
+    END
+    
+    ELSE IF ISNULL(@CharacterOrdinal, 1) < 40
+    BEGIN
+		SET @FirstOrdinal = 1
+    END
+    
+    ELSE
+    BEGIN
+		SET @FirstOrdinal = ISNULL(@CharacterOrdinal, 1) - 40
+		IF @FirstOrdinal < 1
+		BEGIN
+			SET @FirstOrdinal = 1
+		END
+    END
+
+	RETURN @FirstOrdinal
+
+END
+
+GO
+
+

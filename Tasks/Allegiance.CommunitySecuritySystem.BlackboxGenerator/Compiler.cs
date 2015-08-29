@@ -16,7 +16,10 @@ namespace Allegiance.CommunitySecuritySystem.BlackboxGenerator
 
 		public static ActiveKey Build(bool debugMode)
         {
-            using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+			var providerOptions = new Dictionary<string, string>();
+			providerOptions.Add("CompilerVersion", "v2.0");
+
+			using (var provider = CodeDomProvider.CreateProvider("CSharp", providerOptions))
             {
                 //Compile blackbox assembly, save to file
                 var parameters  = new CompilerParameters();

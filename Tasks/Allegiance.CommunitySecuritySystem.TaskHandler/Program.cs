@@ -51,6 +51,8 @@ namespace Allegiance.CommunitySecuritySystem.TaskHandler
             }
             catch (Exception error)
             {
+				Console.WriteLine(error.ToString());
+
                 Error.Write(error);
                 throw error;
             }

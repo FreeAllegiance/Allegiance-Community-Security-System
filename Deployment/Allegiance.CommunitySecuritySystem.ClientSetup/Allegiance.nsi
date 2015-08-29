@@ -211,7 +211,7 @@ Section -AdditionalIcons
   ; IMPORTANT - You need to delete desktop shortcuts separately in the uninstaller!
   ;CreateShortCut "$DESKTOP\${SHORT_PRODUCT_NAME} ${PRODUCT_VERSION}.lnk" "$INSTDIR\Launcher.exe" "" "$INSTDIR\Launcher.exe" 0
   ;CreateShortCut "$DESKTOP\Allegiance Learning Guide.lnk" "http://www.freeallegiance.org/FAW/index.php/Learning_guide" "" "$INSTDIR\academy.ico"
-  CreateShortCut "$DESKTOP\${SHORT_PRODUCT_NAME} ${PRODUCT_VERSION}.lnk" "$INSTDIR\Production\Allegiance.exe" "" "$INSTDIR\Production\Allegiance.exe" 0
+  CreateShortCut "$DESKTOP\${SHORT_PRODUCT_NAME} ${PRODUCT_VERSION} Beta.lnk" "$INSTDIR\Beta\Allegiance.exe" "-beta" "$INSTDIR\Beta\Allegiance.exe" 0
  
  
   CreateDirectory "$SMPROGRAMS\${SHORT_PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -266,6 +266,9 @@ Section -Post
   WriteRegStr HKLM "Software\Microsoft\Microsoft Games\Allegiance\1.3" "CfgFile" "http://acss.alleg.net/allegiance.txt"
   WriteRegStr HKLM "Software\Microsoft\Microsoft Games\Allegiance\1.3" "BetaCfgFile" "http://acss.alleg.net/allegiance-beta.txt"
   WriteRegStr HKLM "Software\Microsoft\Microsoft Games\Allegiance\1.3" "ProductionCfgFile" "http://acss.alleg.net/allegiance.txt"
+
+  WriteRegStr HKLM "Software\Microsoft\Microsoft Games\Allegiance\1.3" "SignupUrl" "http://acss.alleg.net/Login.aspx"
+  WriteRegStr HKLM "Software\Microsoft\Microsoft Games\Allegiance\1.3" "ManagementWebRoot" "http://acss.alleg.net"
   
   ; FIRSTRUN
   WriteRegDWORD HKLM "Software\Microsoft\Microsoft Games\Allegiance\1.3" "FIRSTRUN" "1"
