@@ -354,6 +354,13 @@ namespace Allegiance.CommunitySecuritySystem.Client
             DataStore.Instance.Save();
         }
 
+		private void _useDirectX7R4EngineToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			_useDirectX7R4EngineToolStripMenuItem.Checked = !_useDirectX7R4EngineToolStripMenuItem.Checked;
+			DataStore.Preferences.UseDX7Engine = _useDirectX7R4EngineToolStripMenuItem.Checked;
+			DataStore.Instance.Save();
+		}
+
         //Other
         private void _systemInfoToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -433,12 +440,13 @@ namespace Allegiance.CommunitySecuritySystem.Client
         /// </summary>
         private void LoadPreferences()
         {
-            _launchWindowedToolStripMenuItem.Checked    = DataStore.Preferences.LaunchWindowed;
-            _logChatToolStripMenuItem.Checked           = DataStore.Preferences.LogChat;
-            _autoLoginToolStripMenuItem.Checked         = DataStore.Preferences.AutoLogin;
-            _safeModeToolStripMenuItem.Checked          = DataStore.Preferences.SafeMode;
-            _debugLogToolStripMenuItem.Checked          = DataStore.Preferences.DebugLog;
-            _noMoviesToolStripMenuItem.Checked          = DataStore.Preferences.NoMovies;
+            _launchWindowedToolStripMenuItem.Checked		= DataStore.Preferences.LaunchWindowed;
+            _logChatToolStripMenuItem.Checked				= DataStore.Preferences.LogChat;
+            _autoLoginToolStripMenuItem.Checked				= DataStore.Preferences.AutoLogin;
+            _safeModeToolStripMenuItem.Checked				= DataStore.Preferences.SafeMode;
+            _debugLogToolStripMenuItem.Checked				= DataStore.Preferences.DebugLog;
+            _noMoviesToolStripMenuItem.Checked				= DataStore.Preferences.NoMovies;
+			_useDirectX7R4EngineToolStripMenuItem.Checked	= DataStore.Preferences.UseDX7Engine;
         }
 
         public static void SetStatusBar(string text)
@@ -558,6 +566,8 @@ namespace Allegiance.CommunitySecuritySystem.Client
 			_playTabPage.Controls.Add(_playControl);
 			_playControl.Dock = System.Windows.Forms.DockStyle.Fill;
 		}
+
+	
 
 
     }

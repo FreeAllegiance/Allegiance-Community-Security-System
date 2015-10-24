@@ -98,7 +98,11 @@ namespace Allegiance.CommunitySecuritySystem.Client.Integration
                     //Start Allegiance
                     string lobbyPath = Path.Combine(AllegianceRegistry.LobbyPath, lobbyType.ToString());
 
-                    string allegiancePath = Path.Combine(lobbyPath, "Allegiance.exe");
+					string allegiancePath = Path.Combine(lobbyPath, "Allegiance.exe");
+
+					if(DataStore.Preferences.UseDX7Engine == true)
+						allegiancePath = Path.Combine(lobbyPath, "AllegianceDX7.exe");
+					
 
 #if DEBUG
 						if (String.IsNullOrEmpty(ConfigurationManager.AppSettings["AllegianceExeOverride"]) == false)

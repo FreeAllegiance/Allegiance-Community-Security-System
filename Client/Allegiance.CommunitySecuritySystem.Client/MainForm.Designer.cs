@@ -68,6 +68,7 @@
 			this._notificationMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.showToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this._useDirectX7R4EngineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this._mainStatusStrip.SuspendLayout();
 			this._mainMenuStrip.SuspendLayout();
 			this._mainTabControl.SuspendLayout();
@@ -79,6 +80,7 @@
 			// 
 			// _mainStatusStrip
 			// 
+			this._mainStatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this._mainStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._mainToolStripStatusLabel,
             this._mainToolStripProgressBar});
@@ -103,6 +105,7 @@
 			// 
 			// _mainMenuStrip
 			// 
+			this._mainMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this._mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._fileToolStripMenuItem,
             this._preferencesToolStripMenuItem,
@@ -145,7 +148,8 @@
             this._autoLoginToolStripMenuItem,
             this._safeModeToolStripMenuItem,
             this._debugLogToolStripMenuItem,
-            this._noMoviesToolStripMenuItem});
+            this._noMoviesToolStripMenuItem,
+            this._useDirectX7R4EngineToolStripMenuItem});
 			this._preferencesToolStripMenuItem.Name = "_preferencesToolStripMenuItem";
 			this._preferencesToolStripMenuItem.Size = new System.Drawing.Size(97, 24);
 			this._preferencesToolStripMenuItem.Text = "Preferences";
@@ -153,7 +157,7 @@
 			// _launchWindowedToolStripMenuItem
 			// 
 			this._launchWindowedToolStripMenuItem.Name = "_launchWindowedToolStripMenuItem";
-			this._launchWindowedToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+			this._launchWindowedToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
 			this._launchWindowedToolStripMenuItem.Text = "Launch Windowed";
 			this._launchWindowedToolStripMenuItem.Click += new System.EventHandler(this._launchWindowedToolStripMenuItem_Click);
 			// 
@@ -162,35 +166,35 @@
 			this._logChatToolStripMenuItem.Checked = true;
 			this._logChatToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this._logChatToolStripMenuItem.Name = "_logChatToolStripMenuItem";
-			this._logChatToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+			this._logChatToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
 			this._logChatToolStripMenuItem.Text = "Log Chat";
 			this._logChatToolStripMenuItem.Click += new System.EventHandler(this._logChatToolStripMenuItem_Click);
 			// 
 			// _autoLoginToolStripMenuItem
 			// 
 			this._autoLoginToolStripMenuItem.Name = "_autoLoginToolStripMenuItem";
-			this._autoLoginToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+			this._autoLoginToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
 			this._autoLoginToolStripMenuItem.Text = "Auto Login";
 			this._autoLoginToolStripMenuItem.Click += new System.EventHandler(this._autoLoginToolStripMenuItem_Click);
 			// 
 			// _safeModeToolStripMenuItem
 			// 
 			this._safeModeToolStripMenuItem.Name = "_safeModeToolStripMenuItem";
-			this._safeModeToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+			this._safeModeToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
 			this._safeModeToolStripMenuItem.Text = "Safe Mode";
 			this._safeModeToolStripMenuItem.Click += new System.EventHandler(this._safeModeToolStripMenuItem_Click);
 			// 
 			// _debugLogToolStripMenuItem
 			// 
 			this._debugLogToolStripMenuItem.Name = "_debugLogToolStripMenuItem";
-			this._debugLogToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+			this._debugLogToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
 			this._debugLogToolStripMenuItem.Text = "Debug Log";
 			this._debugLogToolStripMenuItem.Click += new System.EventHandler(this._debugLogToolStripMenuItem_Click);
 			// 
 			// _noMoviesToolStripMenuItem
 			// 
 			this._noMoviesToolStripMenuItem.Name = "_noMoviesToolStripMenuItem";
-			this._noMoviesToolStripMenuItem.Size = new System.Drawing.Size(200, 24);
+			this._noMoviesToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
 			this._noMoviesToolStripMenuItem.Text = "No Movies";
 			this._noMoviesToolStripMenuItem.Click += new System.EventHandler(this._noMoviesToolStripMenuItem_Click);
 			// 
@@ -380,6 +384,7 @@
 			// 
 			// _notificationMenu
 			// 
+			this._notificationMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
 			this._notificationMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.showToolStripMenuItem,
             this.exitToolStripMenuItem});
@@ -401,6 +406,13 @@
 			this.exitToolStripMenuItem.Size = new System.Drawing.Size(85, 24);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this._exitToolStripMenuItem_Click);
+			// 
+			// _useDirectX7R4EngineToolStripMenuItem
+			// 
+			this._useDirectX7R4EngineToolStripMenuItem.Name = "_useDirectX7R4EngineToolStripMenuItem";
+			this._useDirectX7R4EngineToolStripMenuItem.Size = new System.Drawing.Size(247, 26);
+			this._useDirectX7R4EngineToolStripMenuItem.Text = "&Use DirectX 7 (R4 Engine)";
+			this._useDirectX7R4EngineToolStripMenuItem.Click += new System.EventHandler(this._useDirectX7R4EngineToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -476,5 +488,6 @@
         private System.Windows.Forms.ToolStripMenuItem showToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem _noMoviesToolStripMenuItem;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.ToolStripMenuItem _useDirectX7R4EngineToolStripMenuItem;
     }
 }

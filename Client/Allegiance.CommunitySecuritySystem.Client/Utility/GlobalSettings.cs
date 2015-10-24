@@ -40,6 +40,8 @@ namespace Allegiance.CommunitySecuritySystem.Client.Utility
 
         public bool NoMovies { get; set; }
 
+		public bool UseDX7Engine { get; set; }
+
         #endregion
 
         #region Methods
@@ -55,6 +57,7 @@ namespace Allegiance.CommunitySecuritySystem.Client.Utility
                 SafeMode        = false,
                 DebugLog        = true,
                 NoMovies        = true,
+				UseDX7Engine	= false,
             };
         }
 
