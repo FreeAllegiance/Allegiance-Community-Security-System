@@ -89,22 +89,25 @@ namespace Allegiance.CommunitySecuritySystem.Client
                 {
 					UpdateCheckForm updateCheckForm = new UpdateCheckForm();
 
-					if (updateCheckForm.HasPendingUpdates == true)
-					{
-						if (updateCheckForm.ShowDialog() != DialogResult.OK)
-							return;
-					}
+                    if (updateCheckForm.HasPendingUpdates == true)
+                    {
+                        if (updateCheckForm.ShowDialog() != DialogResult.OK)
+                            return;
+                    }
 
-					// If you need to upgrade things on the end users system during an auto-update push, put them in here.
-					string returnMessage;
+                    // If you need to upgrade things on the end users system during an auto-update push, put them in here.
+                    string returnMessage;
 					if (Install.Upgrade.PerformUpgradeTasks(out returnMessage) == false)
 					{
 						MessageBox.Show(returnMessage, "Upgrade canceled.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
 						return;
 					}
 
-					
 
+                    EndOfLife endOfLife = new EndOfLife();
+                    endOfLife.ShowDialog();
+
+                    return;
 
 
 					bool showLoginDialog = false;
@@ -148,6 +151,12 @@ namespace Allegiance.CommunitySecuritySystem.Client
             }
             catch (Exception ex)
             {
+                EndOfLife endOfLife = new EndOfLife();
+                endOfLife.ShowDialog();
+
+                return;
+
+
                 File.WriteAllText("ExceptionLog.txt", ex.ToString());
                 throw;
             }

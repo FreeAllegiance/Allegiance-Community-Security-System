@@ -177,6 +177,12 @@
     <Compile Include="CssDiagnosticsForm.Designer.cs">
       <DependentUpon>CssDiagnosticsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="EndOfLife.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EndOfLife.Designer.cs">
+      <DependentUpon>EndOfLife.cs</DependentUpon>
+    </Compile>
     <Compile Include="Install\VC2010Install.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -296,6 +302,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CssDiagnosticsForm.resx">
       <DependentUpon>CssDiagnosticsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EndOfLife.resx">
+      <DependentUpon>EndOfLife.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Install\VC2010Install.resx">
       <DependentUpon>VC2010Install.cs</DependentUpon>
